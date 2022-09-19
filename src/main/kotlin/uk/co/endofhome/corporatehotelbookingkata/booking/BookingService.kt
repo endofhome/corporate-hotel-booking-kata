@@ -66,7 +66,7 @@ class BookingService(private val hotelService: HotelService, private val booking
 
         return allBookingDates.map { date ->
             val numberOfRoomTypeInHotel = hotel.rooms[roomType]
-            val bookingsForThisRoom = bookingRepository.all()
+            val bookingsForThisRoom = bookingRepository.allBookings()
                 .filter { it.hotelId == hotel.id }
                 .filter { it.roomType == roomType }
                 .filter { (it.from..it.to.minusDays(1)).contains(date) }
@@ -91,12 +91,21 @@ class BookingService(private val hotelService: HotelService, private val booking
 
 data class RoomAvailability(val date: LocalDate, val availability: Int?)
 
-class InMemoryBookingRepository {
+interface BookingRepository {
+    fun add(booking: Booking)
+    fun deleteBookingsFor(employeeId: EmployeeId)
+}
+
+class InMemoryBookingRepository : BookingRepository {
     private var bookings: List<Booking> = listOf()
 
-    fun all(): List<Booking> = bookings
+    fun allBookings(): List<Booking> = bookings
 
-    fun add(booking: Booking) {
+    override fun add(booking: Booking) {
         bookings = bookings + booking
+    }
+
+    override fun deleteBookingsFor(employeeId: EmployeeId) {
+        bookings = bookings.filter { it.employeeId != employeeId }
     }
 }

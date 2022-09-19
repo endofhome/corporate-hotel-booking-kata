@@ -2,6 +2,7 @@ package uk.co.endofhome.corporatehotelbookingkata.company
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
+import uk.co.endofhome.corporatehotelbookingkata.domain.CompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
@@ -25,5 +26,22 @@ class CompanyRepositoryContract {
         companyRepository.add(exampleCompanyId, exampleEmployeeId)
 
         companyRepository.allCompanies() shouldBe mapOf(exampleCompanyId to listOf(exampleEmployeeId))
+    }
+
+    @Test
+    fun `delete employee from one company`() {
+        companyRepository.add(exampleCompanyId, exampleEmployeeId)
+        companyRepository.delete(exampleEmployeeId)
+
+        companyRepository.allCompanies() shouldBe emptyMap()
+    }
+
+    @Test
+    fun `delete employee from many companies`() {
+        companyRepository.add(exampleCompanyId, exampleEmployeeId)
+        companyRepository.add(CompanyId("another-company-id"), exampleEmployeeId)
+        companyRepository.delete(exampleEmployeeId)
+
+        companyRepository.allCompanies() shouldBe emptyMap()
     }
 }

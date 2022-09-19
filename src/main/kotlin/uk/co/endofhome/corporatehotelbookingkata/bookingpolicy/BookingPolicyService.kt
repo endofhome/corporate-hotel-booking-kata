@@ -20,8 +20,28 @@ class BookingPolicyService : IBookingPolicyService {
     override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = true
 }
 
+interface BookingPolicyRepository {
+    fun add(bookingPolicyType: BookingPolicyType)
+    fun deletePoliciesFor(employeeId: EmployeeId)
+}
+
+class InMemoryBookingPolicyRepository() : BookingPolicyRepository {
+    private var bookingPolicies: List<BookingPolicyType> = listOf()
+
+    fun allBookingPolicies() = bookingPolicies
+
+    override fun add(bookingPolicyType: BookingPolicyType) {
+        bookingPolicies = bookingPolicies + bookingPolicyType
+    }
+
+    override fun deletePoliciesFor(employeeId: EmployeeId) {
+        bookingPolicies = bookingPolicies.filterNot { it is BookingPolicyType.EmployeePolicy && it.employeeId == employeeId}
+    }
+}
+
 sealed class BookingPolicyType {
-    data class CompanyPolicy(val bookingPolicy: BookingPolicy) : BookingPolicyType()
+    data class CompanyPolicy(val companyId: CompanyId, val bookingPolicy: BookingPolicy) : BookingPolicyType()
+    data class EmployeePolicy(val employeeId: EmployeeId, val bookingPolicy: BookingPolicy) : BookingPolicyType()
 }
 
 sealed class BookingPolicy {

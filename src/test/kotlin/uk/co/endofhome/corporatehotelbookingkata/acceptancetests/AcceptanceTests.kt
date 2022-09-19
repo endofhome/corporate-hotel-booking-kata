@@ -5,8 +5,13 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.CompanyA
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.Employee
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.RoomTypeNotAllowed
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyType.EmployeePolicy
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
+import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
@@ -57,5 +62,18 @@ class AcceptanceTests {
         val christina = CompanyAdmin()
 
         christina.addEmployee(exampleEmployeeId)
+    }
+
+    @Test
+    fun `Company admin can delete employees`() {
+        val bookingRepository = InMemoryBookingRepository()
+        val bookingPolicyRepository = InMemoryBookingPolicyRepository()
+        val christina = CompanyAdmin(bookingRepository = bookingRepository, bookingPolicyRepository = bookingPolicyRepository)
+
+        christina.addEmployee(exampleEmployeeId)
+        bookingRepository.add(Booking(exampleEmployeeId, exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate))
+        bookingPolicyRepository.add(EmployeePolicy(exampleEmployeeId, RoomTypeNotAllowed(RoomType.Double, setOf(Single))))
+
+        christina.deleteEmployee(exampleEmployeeId)
     }
 }

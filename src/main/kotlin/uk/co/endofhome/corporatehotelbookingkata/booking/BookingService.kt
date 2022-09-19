@@ -1,40 +1,73 @@
 package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import dev.forkhandles.result4k.Result4k
+import dev.forkhandles.result4k.flatMap
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import uk.co.endofhome.corporatehotelbookingkata.result.asFailure
+import uk.co.endofhome.corporatehotelbookingkata.result.asSuccess
 import java.time.LocalDate
 
 class BookingService(private val hotelService: HotelService, private val bookingPolicyService: BookingPolicyService) {
-    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Booking, BookingError> {
-        if (checkInDate >= checkOutDate) {
-            return CheckInMustPreceedCheckOut(checkInDate, checkOutDate).asFailure()
+    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Booking, BookingError> =
+        validateDates(checkInDate, checkOutDate)
+            .flatMap { findHotel(hotelId) }
+            .flatMap { hotel ->
+                val roomAvailability = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate)
+                validateRoomTypeExists(hotelId, roomType, roomAvailability)
+                    .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailability)
+                        .flatMap { BookingIsAgainstPolicy.asFailure() }
+                }
+            }
+
+    private fun validateRoomIsAvailable(hotelId: HotelId, roomType: RoomType, roomAvailability: List<RoomAvailability>): Result4k<Unit, BookingError> {
+        val unavailableDates = roomAvailability
+            .filter { (_, availableRooms) -> availableRooms == null || availableRooms <= 0 }
+            .toList()
+
+        return if (unavailableDates.isNotEmpty()) {
+            RoomTypeUnavailable(hotelId, roomType, unavailableDates.map { it.date }).asFailure()
+        } else {
+            Unit.asSuccess()
+        }
+    }
+
+    private fun validateRoomTypeExists(
+        hotelId: HotelId,
+        roomType: RoomType,
+        roomAvailability: List<RoomAvailability>,
+    ): Result4k<Unit, BookingError> {
+        return if (roomAvailability.all { it.availability == null }) {
+            RoomTypeDoesNotExist(hotelId, roomType).asFailure()
+        } else {
+            Unit.asSuccess()
+        }
+    }
+
+    private fun getRoomAvailability(
+        hotel: Hotel,
+        roomType: RoomType,
+        checkInDate: LocalDate,
+        checkOutDate: LocalDate
+    ): List<RoomAvailability> {
+        val allBookingDates: Sequence<LocalDate> =
+            generateSequence(checkInDate) { it.plusDays(1) }.takeWhile { it < checkOutDate }
+
+        return allBookingDates.map { date -> RoomAvailability(date, hotel.availability[date]?.get(roomType)) }.toList()
+    }
+
+    private fun findHotel(hotelId: HotelId): Result4k<Hotel, HotelDoesNotExist> =
+        hotelService.findHotelBy(hotelId).let { maybeHotel ->
+            maybeHotel?.asSuccess() ?: HotelDoesNotExist(hotelId).asFailure()
         }
 
-        val hotel = hotelService.findHotelBy(hotelId)
-
-        return (if (hotel == null) {
-            HotelDoesNotExist(hotelId)
+    private fun validateDates(checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Unit, CheckInMustPreceedCheckOut> =
+        if (checkInDate >= checkOutDate) {
+            CheckInMustPreceedCheckOut(checkInDate, checkOutDate).asFailure()
         } else {
-            val allBookingDates: Sequence<LocalDate> = generateSequence(checkInDate) { it.plusDays(1) }.takeWhile { it < checkOutDate }
-            val roomAvailability = allBookingDates.map { date -> RoomAvailability(date, hotel.availability[date]?.get(roomType)) }
-            val unavailableDates = roomAvailability
-                .filter { (_, availableRooms) -> availableRooms == null || availableRooms <= 0 }
-                .toList()
-
-            if (unavailableDates.isNotEmpty()) {
-                if (roomAvailability.all { it.availability == null }) {
-                    RoomTypeDoesNotExist(hotelId, roomType)
-                } else {
-                    RoomTypeUnavailable(hotelId, roomType, unavailableDates.map { it.date })
-                }
-            } else {
-                BookingIsAgainstPolicy
-            }
-        }).asFailure()
-    }
+            Unit.asSuccess()
+        }
 }
 
 data class RoomAvailability(val date: LocalDate, val availability: Int?)

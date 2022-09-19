@@ -10,8 +10,7 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
-import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.HotelDoesNotExist
-import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.RoomTypeUnavailable
+import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import java.time.LocalDate
 
 internal class BookingServiceTest {
@@ -20,7 +19,8 @@ internal class BookingServiceTest {
             RoomType.Single to 1)
         )
     ))
-    private val bookingService = BookingService(hotelService)
+    private val bookingPolicyService = BookingPolicyService()
+    private val bookingService = BookingService(hotelService, bookingPolicyService)
 
     @Test
     fun `Check out date must be at least one day after the check in date`() {
@@ -66,5 +66,20 @@ internal class BookingServiceTest {
         )
 
         result shouldBe Failure(RoomTypeUnavailable(exampleHotelId, roomType))
+    }
+
+    @Test
+    fun `Bookings cannot be made if they are against the booking policy`() {
+        val bookingService = BookingService(hotelService, bookingPolicyService)
+
+        val result = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckOutDate
+        )
+
+        result shouldBe Failure(BookingIsAgainstPolicy)
     }
 }

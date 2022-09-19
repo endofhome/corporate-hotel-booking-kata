@@ -4,6 +4,7 @@ import dev.forkhandles.result4k.Success
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import uk.co.endofhome.corporatehotelbookingkata.booking.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
 import uk.co.endofhome.corporatehotelbookingkata.booking.Hotel
@@ -36,7 +37,8 @@ object Employee {
             Single to 1)
         )
     ))
-    private val bookingService = BookingService(hotelService)
+    private val bookingPolicyService = BookingPolicyService()
+    private val bookingService = BookingService(hotelService, bookingPolicyService)
 
     fun book(checkInDate: LocalDate, checkOutDate: LocalDate) {
         val result = bookingService.book(exampleEmployeeId, exampleHotelId, Single, checkInDate, checkOutDate)

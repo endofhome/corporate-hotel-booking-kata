@@ -1,5 +1,9 @@
 package uk.co.endofhome.corporatehotelbookingkata.domain
 
+import java.time.LocalDate
+
+data class Booking(val employeeId: EmployeeId, val hotelId: HotelId, val roomType: RoomType, val from: LocalDate, val to: LocalDate)
+
 @JvmInline
 value class EmployeeId(val value: String)
 
@@ -14,4 +18,4 @@ enum class RoomType {
     Double
 }
 
-object Booking
+object BookingConfirmation

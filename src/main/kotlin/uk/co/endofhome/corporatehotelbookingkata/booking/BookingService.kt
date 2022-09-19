@@ -2,7 +2,6 @@ package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.flatMap
-import dev.forkhandles.result4k.map
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
@@ -10,16 +9,19 @@ import uk.co.endofhome.corporatehotelbookingkata.result.asFailure
 import uk.co.endofhome.corporatehotelbookingkata.result.asSuccess
 import java.time.LocalDate
 
-class BookingService(private val hotelService: HotelService, private val bookingPolicyService: IBookingPolicyService) {
-    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Booking, BookingError> =
+class BookingService(private val hotelService: HotelService, private val bookingPolicyService: IBookingPolicyService, private val bookingRepository: InMemoryBookingRepository) {
+    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<BookingConfirmation, BookingError> =
         validateDates(checkInDate, checkOutDate)
             .flatMap { findHotel(hotelId) }
             .flatMap { hotel ->
-                val roomAvailability = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate)
+                val roomAvailability = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate, bookingRepository)
                 validateRoomTypeExists(hotelId, roomType, roomAvailability)
                     .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailability)
                         .flatMap {
-                            if (bookingPolicyService.isBookingAllowed(employeeId, roomType)) Booking.asSuccess()
+                            if (bookingPolicyService.isBookingAllowed(employeeId, roomType)) {
+                                bookingRepository.add(Booking(employeeId, hotelId, roomType, checkInDate, checkOutDate))
+                                BookingConfirmation.asSuccess()
+                            }
                             else BookingIsAgainstPolicy.asFailure()
                         }
                 }
@@ -53,12 +55,22 @@ class BookingService(private val hotelService: HotelService, private val booking
         hotel: Hotel,
         roomType: RoomType,
         checkInDate: LocalDate,
-        checkOutDate: LocalDate
+        checkOutDate: LocalDate,
+        bookingRepository: InMemoryBookingRepository
     ): List<RoomAvailability> {
         val allBookingDates: Sequence<LocalDate> =
             generateSequence(checkInDate) { it.plusDays(1) }.takeWhile { it < checkOutDate }
 
-        return allBookingDates.map { date -> RoomAvailability(date, hotel.availability[date]?.get(roomType)) }.toList()
+        return allBookingDates.map { date ->
+            val numberOfRoomsInHotel = hotel.roomsAvailable[date]?.get(roomType)
+            val bookingsForThisRoom = bookingRepository.all()
+                .filter { it.hotelId == hotel.id }
+                .filter { it.roomType == roomType }
+                .filter { (it.from..it.to.minusDays(1)).contains(date) }
+                .fold(0) { acc, _ -> acc + 1 }
+
+            RoomAvailability(date, numberOfRoomsInHotel?.minus(bookingsForThisRoom))
+        }.toList()
     }
 
     private fun findHotel(hotelId: HotelId): Result4k<Hotel, HotelDoesNotExist> =
@@ -76,6 +88,16 @@ class BookingService(private val hotelService: HotelService, private val booking
 
 data class RoomAvailability(val date: LocalDate, val availability: Int?)
 
+class InMemoryBookingRepository {
+    private var bookings: List<Booking> = listOf()
+
+    fun all(): List<Booking> = bookings
+
+    fun add(booking: Booking) {
+        bookings = bookings + booking
+    }
+}
+
 // At the moment, the Hotel Service is only required as a collaborator of BookingService, so it lives here.
 // TODO move state to a repository object
 class HotelService(private val hotelRepository: List<Hotel>) {
@@ -88,7 +110,9 @@ class HotelService(private val hotelRepository: List<Hotel>) {
     }
 
 }
-data class Hotel(val id: HotelId, val availability: Map<LocalDate,Map<RoomType, Int>>)
+
+// TODO Don't need the LocalDate here, now we're tracking bookings.
+data class Hotel(val id: HotelId, val roomsAvailable: Map<LocalDate,Map<RoomType, Int>>)
 
 // At the moment, the Booking Policy Service is only required as a collaborator of BookingService, so it lives here.
 interface IBookingPolicyService {

@@ -8,11 +8,10 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckInD
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
-import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
+import uk.co.endofhome.corporatehotelbookingkata.domain.BookingConfirmation
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
-import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import java.time.LocalDate
 
@@ -21,14 +20,14 @@ internal class BookingServiceTest {
         listOf(
             Hotel(
                 id = exampleHotelId,
-                availability = mapOf(
+                roomsAvailable = mapOf(
                     exampleCheckInDate to mapOf(RoomType.Single to 1),
                 )
             )
         )
     )
     private val bookingPolicyService = BookingPolicyService()
-    private val bookingService = BookingService(hotelService, bookingPolicyService)
+    private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
     fun `Check out date must be at least one day after the check in date`() {
@@ -43,7 +42,7 @@ internal class BookingServiceTest {
             checkOutDate = checkOutDate
         )
 
-        result shouldBe Failure(BookingError.CheckInMustPreceedCheckOut(checkInDate, checkOutDate))
+        result shouldBe Failure(CheckInMustPreceedCheckOut(checkInDate, checkOutDate))
     }
 
     @Test
@@ -81,7 +80,7 @@ internal class BookingServiceTest {
         val bookingNotAllowedBookingPolicyService = object : IBookingPolicyService by BookingPolicyService() {
             override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = false
         }
-        val bookingService = BookingService(hotelService, bookingNotAllowedBookingPolicyService)
+        val bookingService = BookingService(hotelService, bookingNotAllowedBookingPolicyService, InMemoryBookingRepository())
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
@@ -99,12 +98,12 @@ internal class BookingServiceTest {
         val hotelService = HotelService(listOf(
             Hotel(
                 id = exampleHotelId,
-                availability = mapOf(
+                roomsAvailable = mapOf(
                     exampleCheckInDate to mapOf(RoomType.Single to 1)
                 )
             )
         ))
-        val bookingService = BookingService(hotelService, bookingPolicyService)
+        val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
@@ -122,8 +121,37 @@ internal class BookingServiceTest {
     }
 
     @Test
+    fun `Room cannot be booked twice`() {
+        val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
+
+        val firstResult = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckOutDate
+        )
+
+        val secondResult = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckOutDate
+        )
+
+        firstResult shouldBe Success(BookingConfirmation)
+
+        secondResult shouldBe Failure(RoomTypeUnavailable(
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            onDates = listOf(exampleCheckInDate)
+        ))
+    }
+
+    @Test
     fun `Valid booking can be made`() {
-        val bookingService = BookingService(hotelService, bookingPolicyService)
+        val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
@@ -133,6 +161,6 @@ internal class BookingServiceTest {
             checkOutDate = exampleCheckOutDate
         )
 
-        result shouldBe Success(Booking)
+        result shouldBe Success(BookingConfirmation)
     }
 }

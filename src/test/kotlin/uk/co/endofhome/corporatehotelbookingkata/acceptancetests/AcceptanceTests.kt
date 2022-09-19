@@ -1,45 +1,46 @@
 package uk.co.endofhome.corporatehotelbookingkata.acceptancetests
 
-import dev.forkhandles.result4k.Failure
-import dev.forkhandles.result4k.Result4k
-import io.kotest.matchers.shouldBe
+import dev.forkhandles.result4k.Success
+import io.kotest.matchers.types.shouldBeInstanceOf
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.BookingError.CheckInMustPreceedCheckOut
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.RoomType.Single
+import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
+import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
+import uk.co.endofhome.corporatehotelbookingkata.booking.Hotel
+import uk.co.endofhome.corporatehotelbookingkata.booking.HotelService
+import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
+import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import java.time.LocalDate
 
 class AcceptanceTests {
+    @Disabled("W.I.P.")
     @Test
-    fun `Check out date must be at least one day after the check in date`() {
-        val bookingService = BookingService()
+    fun `Employee can book a room`() {
+        val edwin = Employee
         val checkInDate = LocalDate.of(2022, 9, 18)
-        val checkOutDate = LocalDate.of(2022, 9, 18)
-        val result = bookingService.book(exampleEmployeeId, exampleHotelId, Single, checkInDate, checkOutDate)
+        val checkOutDate = LocalDate.of(2022, 9, 19)
 
-        result shouldBe Failure(CheckInMustPreceedCheckOut(checkInDate, checkOutDate))
+        edwin.book(checkInDate, checkOutDate)
     }
 }
 
-class BookingService {
-    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Booking, BookingError> {
-        return Failure(CheckInMustPreceedCheckOut(checkInDate, checkOutDate))
-    }
-}
-
-@JvmInline
-value class EmployeeId(val value: String)
-
-@JvmInline
-value class HotelId(val value: String)
-
-enum class RoomType {
-    Single
-}
-
-object Booking
 val exampleEmployeeId = EmployeeId("some-id")
 val exampleHotelId = HotelId("some-id")
+val exampleCheckInDate: LocalDate = LocalDate.of(2022, 9, 18)
+val exampleCheckOutDate: LocalDate = LocalDate.of(2022, 9, 19)
 
-sealed class BookingError{
-    data class CheckInMustPreceedCheckOut(val checkInDate: LocalDate, val checkOutDate: LocalDate) : BookingError()
+object Employee {
+    private val hotelService = HotelService(listOf(
+        Hotel(id = exampleHotelId, availableRooms = mapOf(
+            Single to 1)
+        )
+    ))
+    private val bookingService = BookingService(hotelService)
+
+    fun book(checkInDate: LocalDate, checkOutDate: LocalDate) {
+        val result = bookingService.book(exampleEmployeeId, exampleHotelId, Single, checkInDate, checkOutDate)
+
+        result.shouldBeInstanceOf<Success<Booking>>()
+    }
 }

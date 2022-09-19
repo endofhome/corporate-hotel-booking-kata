@@ -9,7 +9,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import java.time.LocalDate
 
-class Employee(private val employeeId: EmployeeId, private val bookingService: BookingService) {
+class Employee(val employeeId: EmployeeId, private val bookingService: BookingService) {
 
     fun book(hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate){
         val result = bookingService.book(employeeId, hotelId, roomType, checkInDate, checkOutDate)

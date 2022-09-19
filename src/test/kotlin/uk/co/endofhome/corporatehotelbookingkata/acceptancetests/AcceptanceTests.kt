@@ -70,9 +70,9 @@ class AcceptanceTests {
         val christina = CompanyAdmin(bookingRepository = bookingRepository, bookingPolicyRepository = bookingPolicyRepository)
         val edwin = Employee(exampleEmployeeId, bookingService)
 
-        christina.addEmployee(exampleEmployeeId)
+        christina.addEmployee(edwin.employeeId)
         edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
-        bookingPolicyRepository.add(EmployeePolicy(exampleEmployeeId, RoomTypeNotAllowed(RoomType.Double, setOf(Single))))
+        bookingPolicyRepository.add(EmployeePolicy(edwin.employeeId, RoomTypeNotAllowed(RoomType.Double, setOf(Single))))
 
         christina.deleteEmployee(exampleEmployeeId)
     }

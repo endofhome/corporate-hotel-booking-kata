@@ -9,7 +9,6 @@ import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.Roo
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyType.EmployeePolicy
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
-import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
@@ -21,17 +20,17 @@ import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
 import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 
 class AcceptanceTests {
+    private val hotelService = HotelService(listOf(
+        Hotel(
+            id = exampleHotelId,
+            rooms = mapOf(Single to 1)
+        )
+    ))
+    private val bookingPolicyService = BookingPolicyService()
+    private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
     fun `Employee can book a room`() {
-        val hotelService = HotelService(listOf(
-            Hotel(
-                id = exampleHotelId,
-                rooms = mapOf(Single to 1)
-            )
-        ))
-        val bookingPolicyService = BookingPolicyService()
-        val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
         val edwin = Employee(exampleEmployeeId, bookingService)
 
         edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
@@ -69,9 +68,10 @@ class AcceptanceTests {
         val bookingRepository = InMemoryBookingRepository()
         val bookingPolicyRepository = InMemoryBookingPolicyRepository()
         val christina = CompanyAdmin(bookingRepository = bookingRepository, bookingPolicyRepository = bookingPolicyRepository)
+        val edwin = Employee(exampleEmployeeId, bookingService)
 
         christina.addEmployee(exampleEmployeeId)
-        bookingRepository.add(Booking(exampleEmployeeId, exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate))
+        edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
         bookingPolicyRepository.add(EmployeePolicy(exampleEmployeeId, RoomTypeNotAllowed(RoomType.Double, setOf(Single))))
 
         christina.deleteEmployee(exampleEmployeeId)

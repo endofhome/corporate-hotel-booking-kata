@@ -33,9 +33,11 @@ val exampleCheckOutDate: LocalDate = LocalDate.of(2022, 9, 19)
 
 object Employee {
     private val hotelService = HotelService(listOf(
-        Hotel(id = exampleHotelId, availableRooms = mapOf(
-            Single to 1)
-        )
+        Hotel(
+            id = exampleHotelId,
+            availability = mapOf(
+                exampleCheckInDate to mapOf(Single to 1)
+        ))
     ))
     private val bookingPolicyService = BookingPolicyService()
     private val bookingService = BookingService(hotelService, bookingPolicyService)

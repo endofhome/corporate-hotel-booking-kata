@@ -14,11 +14,16 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import java.time.LocalDate
 
 internal class BookingServiceTest {
-    private val hotelService = HotelService(listOf(
-        Hotel(id = exampleHotelId, availableRooms = mapOf(
-            RoomType.Single to 1)
+    private val hotelService = HotelService(
+        listOf(
+            Hotel(
+                id = exampleHotelId,
+                availability = mapOf(
+                    exampleCheckInDate to mapOf(RoomType.Single to 1),
+                )
+            )
         )
-    ))
+    )
     private val bookingPolicyService = BookingPolicyService()
     private val bookingService = BookingService(hotelService, bookingPolicyService)
 
@@ -65,11 +70,12 @@ internal class BookingServiceTest {
             checkOutDate = exampleCheckOutDate
         )
 
-        result shouldBe Failure(RoomTypeUnavailable(exampleHotelId, roomType))
+        result shouldBe Failure(RoomTypeUnavailable(exampleHotelId, roomType, listOf(exampleCheckInDate)))
     }
 
     @Test
     fun `Bookings cannot be made if they are against the booking policy`() {
+        val bookingPolicyService = BookingPolicyService()
         val bookingService = BookingService(hotelService, bookingPolicyService)
 
         val result = bookingService.book(
@@ -81,5 +87,32 @@ internal class BookingServiceTest {
         )
 
         result shouldBe Failure(BookingIsAgainstPolicy)
+    }
+
+    @Test
+    fun `Bookings cannot be made if a room isn't available for the duration of the booking`() {
+        val hotelService = HotelService(listOf(
+            Hotel(
+                id = exampleHotelId,
+                availability = mapOf(
+                    exampleCheckInDate to mapOf(RoomType.Single to 1)
+                )
+            )
+        ))
+        val bookingService = BookingService(hotelService, bookingPolicyService)
+
+        val result = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckInDate.plusDays(2)
+        )
+
+        result shouldBe Failure(RoomTypeUnavailable(
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            onDates = listOf(exampleCheckInDate.plusDays(1))
+        ))
     }
 }

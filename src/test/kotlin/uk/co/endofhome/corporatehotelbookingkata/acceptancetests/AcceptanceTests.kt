@@ -15,9 +15,19 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import java.time.LocalDate
 
 class AcceptanceTests {
+
     @Test
     fun `Employee can book a room`() {
-        val edwin = Employee
+        val hotelService = HotelService(listOf(
+            Hotel(
+                id = exampleHotelId,
+                availability = mapOf(
+                    exampleCheckInDate to mapOf(Single to 1)
+                ))
+        ))
+        val bookingPolicyService = BookingPolicyService()
+        val bookingService = BookingService(hotelService, bookingPolicyService)
+        val edwin = Employee(exampleEmployeeId, bookingService)
 
         edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
     }
@@ -28,19 +38,10 @@ val exampleHotelId = HotelId("some-id")
 val exampleCheckInDate: LocalDate = LocalDate.of(2022, 9, 18)
 val exampleCheckOutDate: LocalDate = LocalDate.of(2022, 9, 19)
 
-object Employee {
-    private val hotelService = HotelService(listOf(
-        Hotel(
-            id = exampleHotelId,
-            availability = mapOf(
-                exampleCheckInDate to mapOf(Single to 1)
-        ))
-    ))
-    private val bookingPolicyService = BookingPolicyService()
-    private val bookingService = BookingService(hotelService, bookingPolicyService)
+class Employee(private val employeeId: EmployeeId, private val bookingService: BookingService) {
 
     fun book(hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate) {
-        val result = bookingService.book(exampleEmployeeId, hotelId, roomType, checkInDate, checkOutDate)
+        val result = bookingService.book(employeeId, hotelId, roomType, checkInDate, checkOutDate)
 
         result.shouldBeInstanceOf<Success<Booking>>()
     }

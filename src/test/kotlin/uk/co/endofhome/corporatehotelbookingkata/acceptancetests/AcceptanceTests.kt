@@ -18,9 +18,8 @@ class AcceptanceTests {
         val hotelService = HotelService(listOf(
             Hotel(
                 id = exampleHotelId,
-                roomsAvailable = mapOf(
-                    exampleCheckInDate to mapOf(Single to 1)
-                ))
+                rooms = mapOf(Single to 1)
+            )
         ))
         val bookingPolicyService = BookingPolicyService()
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
@@ -37,10 +36,8 @@ class AcceptanceTests {
         val hotelService = HotelService(listOf(
             Hotel(
                 id = exampleHotelId,
-                roomsAvailable = mapOf(
-                    edwinChecksInDate to mapOf(Single to 1),
-                    eileenChecksInDate to mapOf(Single to 1)
-                ))
+                rooms = mapOf(Single to 1)
+            )
         ))
         val bookingPolicyService = BookingPolicyService()
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())

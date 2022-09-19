@@ -62,14 +62,14 @@ class BookingService(private val hotelService: HotelService, private val booking
             generateSequence(checkInDate) { it.plusDays(1) }.takeWhile { it < checkOutDate }
 
         return allBookingDates.map { date ->
-            val numberOfRoomsInHotel = hotel.roomsAvailable[date]?.get(roomType)
+            val numberOfRoomTypeInHotel = hotel.rooms[roomType]
             val bookingsForThisRoom = bookingRepository.all()
                 .filter { it.hotelId == hotel.id }
                 .filter { it.roomType == roomType }
                 .filter { (it.from..it.to.minusDays(1)).contains(date) }
                 .fold(0) { acc, _ -> acc + 1 }
 
-            RoomAvailability(date, numberOfRoomsInHotel?.minus(bookingsForThisRoom))
+            RoomAvailability(date, numberOfRoomTypeInHotel?.minus(bookingsForThisRoom))
         }.toList()
     }
 
@@ -111,8 +111,7 @@ class HotelService(private val hotelRepository: List<Hotel>) {
 
 }
 
-// TODO Don't need the LocalDate here, now we're tracking bookings.
-data class Hotel(val id: HotelId, val roomsAvailable: Map<LocalDate,Map<RoomType, Int>>)
+data class Hotel(val id: HotelId, val rooms: Map<RoomType, Int>)
 
 // At the moment, the Booking Policy Service is only required as a collaborator of BookingService, so it lives here.
 interface IBookingPolicyService {

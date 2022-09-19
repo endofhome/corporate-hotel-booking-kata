@@ -8,10 +8,7 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckInD
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
-import uk.co.endofhome.corporatehotelbookingkata.domain.BookingConfirmation
-import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
-import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
-import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
+import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import java.time.LocalDate
 
@@ -20,9 +17,7 @@ internal class BookingServiceTest {
         listOf(
             Hotel(
                 id = exampleHotelId,
-                roomsAvailable = mapOf(
-                    exampleCheckInDate to mapOf(RoomType.Single to 1),
-                )
+                rooms = mapOf(RoomType.Single to 1)
             )
         )
     )
@@ -95,29 +90,41 @@ internal class BookingServiceTest {
 
     @Test
     fun `Bookings cannot be made if a room isn't available for the duration of the booking`() {
+        val firstDay = exampleCheckInDate
+        val secondDay = exampleCheckOutDate
         val hotelService = HotelService(listOf(
             Hotel(
                 id = exampleHotelId,
-                roomsAvailable = mapOf(
-                    exampleCheckInDate to mapOf(RoomType.Single to 1)
-                )
+                rooms = mapOf(RoomType.Single to 1)
             )
         ))
-        val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
+        val bookingRepository = InMemoryBookingRepository()
+        val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
+
+        bookingRepository.add(
+            Booking(
+                employeeId = exampleEmployeeId,
+                hotelId = exampleHotelId,
+                roomType = RoomType.Single,
+                from = secondDay,
+                to = secondDay.plusDays(1)
+            )
+        )
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
             hotelId = exampleHotelId,
             roomType = RoomType.Single,
-            checkInDate = exampleCheckInDate,
-            checkOutDate = exampleCheckInDate.plusDays(2)
+            checkInDate = firstDay,
+            checkOutDate = firstDay.plusDays(2)
         )
 
-        result shouldBe Failure(RoomTypeUnavailable(
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            onDates = listOf(exampleCheckInDate.plusDays(1))
-        ))
+        result shouldBe Failure(
+            RoomTypeUnavailable(
+                hotelId = exampleHotelId,
+                roomType = RoomType.Single,
+                onDates = listOf(firstDay.plusDays(1))
+            ))
     }
 
     @Test

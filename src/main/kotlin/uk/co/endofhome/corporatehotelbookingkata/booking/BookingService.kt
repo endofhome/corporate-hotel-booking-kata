@@ -2,9 +2,12 @@ package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.flatMap
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
+import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
+import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 import uk.co.endofhome.corporatehotelbookingkata.result.asFailure
 import uk.co.endofhome.corporatehotelbookingkata.result.asSuccess
 import java.time.LocalDate
@@ -96,43 +99,4 @@ class InMemoryBookingRepository {
     fun add(booking: Booking) {
         bookings = bookings + booking
     }
-}
-
-// At the moment, the Hotel Service is only required as a collaborator of BookingService, so it lives here.
-// TODO move state to a repository object
-class HotelService(private val hotelRepository: List<Hotel>) {
-    fun setRoomType(hotelId: HotelId, roomType: RoomType, quantity: Int) {
-        TODO("Not yet implemented")
-    }
-
-    fun findHotelBy(hotelId: HotelId): Hotel? {
-        return hotelRepository.find { it.id == hotelId }
-    }
-
-}
-
-data class Hotel(val id: HotelId, val rooms: Map<RoomType, Int>)
-
-// At the moment, the Booking Policy Service is only required as a collaborator of BookingService, so it lives here.
-interface IBookingPolicyService {
-    fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>)
-    fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>)
-    fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean
-}
-class BookingPolicyService : IBookingPolicyService {
-    override fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>) {
-        TODO("Not yet implemented")
-    }
-    override fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
-        TODO("Not yet implemented")
-    }
-    override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = true
-}
-
-sealed class BookingPolicyType {
-    data class CompanyPolicy(val bookingPolicy: BookingPolicy) : BookingPolicyType()
-}
-
-sealed class BookingPolicy {
-    data class RoomTypeNotAllowed(val roomTypeAttempted: RoomType, val roomTypesAllowed: Set<RoomType>) : BookingPolicy()
 }

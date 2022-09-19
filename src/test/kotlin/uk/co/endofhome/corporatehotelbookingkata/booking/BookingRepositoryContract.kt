@@ -2,12 +2,12 @@ package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckInDate
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckOutDate
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleEmployeeId
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 
 internal class BookingRepositoryContract {
     private val bookingRepository = InMemoryBookingRepository()

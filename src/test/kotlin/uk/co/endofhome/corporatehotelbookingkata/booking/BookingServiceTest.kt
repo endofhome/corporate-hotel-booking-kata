@@ -4,12 +4,16 @@ import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckInDate
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckOutDate
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleEmployeeId
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
+import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
+import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 import java.time.LocalDate
 
 internal class BookingServiceTest {

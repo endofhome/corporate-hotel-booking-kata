@@ -1,15 +1,18 @@
 package uk.co.endofhome.corporatehotelbookingkata.acceptancetests
 
-import dev.forkhandles.result4k.Success
-import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
-import uk.co.endofhome.corporatehotelbookingkata.booking.*
-import uk.co.endofhome.corporatehotelbookingkata.domain.BookingConfirmation
+import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.Employee
+import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
+import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
-import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
-import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
-import java.time.LocalDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
+import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
+import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
+import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 
 class AcceptanceTests {
 
@@ -46,19 +49,5 @@ class AcceptanceTests {
 
         edwin.book(exampleHotelId, Single, edwinChecksInDate, eileenChecksInDate)
         eileen.book(exampleHotelId, Single, eileenChecksInDate, eileenChecksOutDate)
-    }
-}
-
-val exampleEmployeeId = EmployeeId("some-id")
-val exampleHotelId = HotelId("some-id")
-val exampleCheckInDate: LocalDate = LocalDate.of(2022, 9, 18)
-val exampleCheckOutDate: LocalDate = LocalDate.of(2022, 9, 19)
-
-class Employee(private val employeeId: EmployeeId, private val bookingService: BookingService) {
-
-    fun book(hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate){
-        val result = bookingService.book(employeeId, hotelId, roomType, checkInDate, checkOutDate)
-
-        result.shouldBeInstanceOf<Success<BookingConfirmation>>()
     }
 }

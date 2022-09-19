@@ -1,8 +1,8 @@
 package uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors
 
 import io.kotest.matchers.shouldBe
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.CompanyService
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.InMemoryCompanyRepository
+import uk.co.endofhome.corporatehotelbookingkata.company.CompanyService
+import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 

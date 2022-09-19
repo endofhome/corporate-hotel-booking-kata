@@ -70,7 +70,7 @@ internal class BookingServiceTest {
             checkOutDate = exampleCheckOutDate
         )
 
-        result shouldBe Failure(RoomTypeUnavailable(exampleHotelId, roomType, listOf(exampleCheckInDate)))
+        result shouldBe Failure(RoomTypeDoesNotExist(exampleHotelId, roomType))
     }
 
     @Test

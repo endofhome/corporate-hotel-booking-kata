@@ -22,11 +22,14 @@ class BookingService(private val hotelService: HotelService, private val booking
             val roomAvailability = allBookingDates.map { date -> RoomAvailability(date, hotel.availability[date]?.get(roomType)) }
             val unavailableDates = roomAvailability
                 .filter { (_, availableRooms) -> availableRooms == null || availableRooms <= 0 }
-                .map { it.date }
                 .toList()
 
             if (unavailableDates.isNotEmpty()) {
-                RoomTypeUnavailable(hotelId, roomType, unavailableDates)
+                if (roomAvailability.all { it.availability == null }) {
+                    RoomTypeDoesNotExist(hotelId, roomType)
+                } else {
+                    RoomTypeUnavailable(hotelId, roomType, unavailableDates.map { it.date })
+                }
             } else {
                 BookingIsAgainstPolicy
             }

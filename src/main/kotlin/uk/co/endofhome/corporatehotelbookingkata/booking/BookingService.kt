@@ -2,6 +2,7 @@ package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.flatMap
+import dev.forkhandles.result4k.map
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
@@ -9,7 +10,7 @@ import uk.co.endofhome.corporatehotelbookingkata.result.asFailure
 import uk.co.endofhome.corporatehotelbookingkata.result.asSuccess
 import java.time.LocalDate
 
-class BookingService(private val hotelService: HotelService, private val bookingPolicyService: BookingPolicyService) {
+class BookingService(private val hotelService: HotelService, private val bookingPolicyService: IBookingPolicyService) {
     fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Booking, BookingError> =
         validateDates(checkInDate, checkOutDate)
             .flatMap { findHotel(hotelId) }
@@ -17,7 +18,10 @@ class BookingService(private val hotelService: HotelService, private val booking
                 val roomAvailability = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate)
                 validateRoomTypeExists(hotelId, roomType, roomAvailability)
                     .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailability)
-                        .flatMap { BookingIsAgainstPolicy.asFailure() }
+                        .flatMap {
+                            if (bookingPolicyService.isBookingAllowed(employeeId, roomType)) Booking.asSuccess()
+                            else BookingIsAgainstPolicy.asFailure()
+                        }
                 }
             }
 
@@ -87,14 +91,19 @@ class HotelService(private val hotelRepository: List<Hotel>) {
 data class Hotel(val id: HotelId, val availability: Map<LocalDate,Map<RoomType, Int>>)
 
 // At the moment, the Booking Policy Service is only required as a collaborator of BookingService, so it lives here.
-class BookingPolicyService {
-    fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>) {
+interface IBookingPolicyService {
+    fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>)
+    fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>)
+    fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean
+}
+class BookingPolicyService : IBookingPolicyService {
+    override fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>) {
         TODO("Not yet implemented")
     }
-    fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
+    override fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
         TODO("Not yet implemented")
     }
-    fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = false
+    override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = true
 }
 
 sealed class BookingPolicyType {

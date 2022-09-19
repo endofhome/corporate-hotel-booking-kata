@@ -1,12 +1,15 @@
 package uk.co.endofhome.corporatehotelbookingkata.booking
 
 import dev.forkhandles.result4k.Failure
+import dev.forkhandles.result4k.Success
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckInDate
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.exampleHotelId
+import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
+import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
@@ -75,8 +78,10 @@ internal class BookingServiceTest {
 
     @Test
     fun `Bookings cannot be made if they are against the booking policy`() {
-        val bookingPolicyService = BookingPolicyService()
-        val bookingService = BookingService(hotelService, bookingPolicyService)
+        val bookingNotAllowedBookingPolicyService = object : IBookingPolicyService by BookingPolicyService() {
+            override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = false
+        }
+        val bookingService = BookingService(hotelService, bookingNotAllowedBookingPolicyService)
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
@@ -114,5 +119,20 @@ internal class BookingServiceTest {
             roomType = RoomType.Single,
             onDates = listOf(exampleCheckInDate.plusDays(1))
         ))
+    }
+
+    @Test
+    fun `Valid booking can be made`() {
+        val bookingService = BookingService(hotelService, bookingPolicyService)
+
+        val result = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckOutDate
+        )
+
+        result shouldBe Success(Booking)
     }
 }

@@ -5,13 +5,13 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.CompanyA
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.Employee
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.RoomTypeNotAllowed
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.EmployeePolicy
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyType.EmployeePolicy
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
+import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.BookingIsAgainstPolicy
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
@@ -26,14 +26,15 @@ class AcceptanceTests {
             rooms = mapOf(Single to 1)
         )
     ))
-    private val bookingPolicyService = BookingPolicyService()
+    private val bookingPolicyRepository = InMemoryBookingPolicyRepository()
+    private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository)
     private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
     fun `Employee can book a room`() {
         val edwin = Employee(exampleEmployeeId, bookingService)
 
-        edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
+        edwin.canBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
     }
 
     @Test
@@ -47,13 +48,13 @@ class AcceptanceTests {
                 rooms = mapOf(Single to 1)
             )
         ))
-        val bookingPolicyService = BookingPolicyService()
+        val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository())
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
         val edwin = Employee(exampleEmployeeId, bookingService)
         val eileen = Employee(EmployeeId("eileen-id"), bookingService)
 
-        edwin.book(exampleHotelId, Single, edwinChecksInDate, eileenChecksInDate)
-        eileen.book(exampleHotelId, Single, eileenChecksInDate, eileenChecksOutDate)
+        edwin.canBook(exampleHotelId, Single, edwinChecksInDate, eileenChecksInDate)
+        eileen.canBook(exampleHotelId, Single, eileenChecksInDate, eileenChecksOutDate)
     }
 
     @Test
@@ -71,9 +72,19 @@ class AcceptanceTests {
         val edwin = Employee(exampleEmployeeId, bookingService)
 
         christina.addEmployee(edwin.employeeId)
-        edwin.book(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
-        bookingPolicyRepository.add(EmployeePolicy(edwin.employeeId, RoomTypeNotAllowed(RoomType.Double, setOf(Single))))
+        edwin.canBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
+        bookingPolicyRepository.add(EmployeePolicy(edwin.employeeId, setOf(RoomType.Double)))
 
         christina.deleteEmployee(exampleEmployeeId)
+    }
+
+    @Test
+    fun `Company admin can set booking policy - employee policy`() {
+        val christina = CompanyAdmin(bookingPolicyRepository = bookingPolicyRepository)
+
+        val edwin = Employee(exampleEmployeeId, bookingService)
+        christina.setEmployeePolicy(edwin.employeeId, setOf(RoomType.Double))
+
+        edwin.cannotBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate, because = BookingIsAgainstPolicy)
     }
 }

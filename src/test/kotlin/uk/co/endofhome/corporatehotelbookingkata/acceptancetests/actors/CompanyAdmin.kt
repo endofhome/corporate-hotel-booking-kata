@@ -2,12 +2,15 @@ package uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors
 
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyType.EmployeePolicy
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.EmployeePolicy
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.CompanyService
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 
 class CompanyAdmin(
@@ -17,6 +20,7 @@ class CompanyAdmin(
     private val companyId = exampleCompanyId
     private val companyRepository = InMemoryCompanyRepository()
     private val companyService = CompanyService(companyRepository, bookingRepository, bookingPolicyRepository)
+    private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository)
 
     fun addEmployee(employeeId: EmployeeId) {
         companyService.addEmployee(companyId, employeeId)
@@ -31,5 +35,13 @@ class CompanyAdmin(
         bookingRepository.allBookings().map { it.employeeId }.shouldNotContain(employeeId)
         bookingPolicyRepository.allBookingPolicies().filterIsInstance<EmployeePolicy>().map { it.employeeId }
             .shouldNotContain(employeeId)
+    }
+
+    fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
+        bookingPolicyService.setEmployeePolicy(employeeId, roomTypes)
+
+        bookingPolicyRepository.allBookingPolicies().find {
+            it == EmployeePolicy(employeeId, roomTypes)
+        } shouldNotBe null
     }
 }

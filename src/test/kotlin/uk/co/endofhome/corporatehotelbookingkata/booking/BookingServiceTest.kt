@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.*
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
@@ -25,7 +26,7 @@ internal class BookingServiceTest {
             )
         )
     )
-    private val bookingPolicyService = BookingPolicyService()
+    private val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository())
     private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
@@ -76,7 +77,7 @@ internal class BookingServiceTest {
 
     @Test
     fun `Bookings cannot be made if they are against the booking policy`() {
-        val bookingNotAllowedBookingPolicyService = object : IBookingPolicyService by BookingPolicyService() {
+        val bookingNotAllowedBookingPolicyService = object : IBookingPolicyService by BookingPolicyService(InMemoryBookingPolicyRepository()) {
             override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = false
         }
         val bookingService = BookingService(hotelService, bookingNotAllowedBookingPolicyService, InMemoryBookingRepository())

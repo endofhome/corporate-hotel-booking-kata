@@ -19,16 +19,16 @@ class BookingService(private val hotelService: HotelService, private val booking
             .flatMap { hotel ->
                 val roomAvailability = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate, bookingRepository)
                 validateRoomTypeExists(hotelId, roomType, roomAvailability)
-                    .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailability)
-                        .flatMap {
-                            if (bookingPolicyService.isBookingAllowed(employeeId, roomType)) {
-                                bookingRepository.add(Booking(employeeId, hotelId, roomType, checkInDate, checkOutDate))
-                                BookingConfirmation.asSuccess()
-                            }
-                            else BookingIsAgainstPolicy.asFailure()
-                        }
-                }
-            }
+                    .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailability) }
+            }.flatMap { add(Booking(employeeId, hotelId, roomType, checkInDate, checkOutDate)) }
+
+    private fun add(booking: Booking) =
+        if (bookingPolicyService.isBookingAllowed(booking.employeeId, booking.roomType)) {
+            bookingRepository.add(booking)
+            BookingConfirmation.asSuccess()
+        } else {
+            BookingIsAgainstPolicy.asFailure()
+        }
 
     private fun validateRoomIsAvailable(hotelId: HotelId, roomType: RoomType, roomAvailability: List<RoomAvailability>): Result4k<Unit, BookingError> {
         val unavailableDates = roomAvailability

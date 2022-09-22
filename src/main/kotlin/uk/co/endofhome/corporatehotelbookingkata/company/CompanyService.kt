@@ -11,7 +11,7 @@ class CompanyService(
     private val bookingPolicyRepository: BookingPolicyRepository
 ) {
     fun addEmployee(companyId: CompanyId, employeeId: EmployeeId) {
-        companyRepository.add(companyId, employeeId)
+        companyRepository.add(employeeId, companyId)
     }
 
     fun deleteEmployee(employeeId: EmployeeId) {
@@ -22,14 +22,15 @@ class CompanyService(
 }
 
 interface CompanyRepository {
-    fun add(companyId: CompanyId, employeeId: EmployeeId)
+    fun add(employeeId: EmployeeId, companyId: CompanyId)
     fun delete(employeeId: EmployeeId)
+    fun employees(companyId: CompanyId): Set<EmployeeId>
 }
 
 class InMemoryCompanyRepository : CompanyRepository {
     private var companies: Map<CompanyId, List<EmployeeId>> = emptyMap()
 
-    override fun add(companyId: CompanyId, employeeId: EmployeeId) {
+    override fun add(employeeId: EmployeeId, companyId: CompanyId) {
         val employees = companies[companyId] ?: emptyList()
         if (!employees.contains(employeeId)) {
             companies = companies + (companyId to (employees + employeeId))
@@ -43,6 +44,9 @@ class InMemoryCompanyRepository : CompanyRepository {
         }
         companies = (companies + updatedCompanies).filter { it.value.isNotEmpty() }
     }
+
+    override fun employees(companyId: CompanyId): Set<EmployeeId> =
+        (companies[companyId] ?: emptyList()).toSet()
 
     fun allCompanies() = companies
 }

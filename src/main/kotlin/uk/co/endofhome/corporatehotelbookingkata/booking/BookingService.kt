@@ -12,7 +12,11 @@ import uk.co.endofhome.corporatehotelbookingkata.result.asFailure
 import uk.co.endofhome.corporatehotelbookingkata.result.asSuccess
 import java.time.LocalDate
 
-class BookingService(private val hotelService: HotelService, private val bookingPolicyService: IBookingPolicyService, private val bookingRepository: InMemoryBookingRepository) {
+class BookingService(
+    private val hotelService: HotelService,
+    private val bookingPolicyService: IBookingPolicyService,
+    private val bookingRepository: InMemoryBookingRepository
+) {
     fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<BookingConfirmation, BookingError> =
         validateDates(checkInDate, checkOutDate)
             .flatMap { findHotel(hotelId) }

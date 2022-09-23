@@ -1,6 +1,7 @@
 package uk.co.endofhome.corporatehotelbookingkata.acceptancetests
 
 import org.junit.jupiter.api.Test
+import uk.co.endofhome.corporatehotelbookingkata.*
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.CompanyAdmin
 import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.Employee
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
@@ -13,10 +14,6 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType.Single
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.BookingIsAgainstPolicy
-import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
-import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
-import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
-import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
 import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 
@@ -92,7 +89,7 @@ class AcceptanceTests {
 
     @Test
     fun `Company admin can set booking policy - company policy`() {
-        val christina = CompanyAdmin(bookingPolicyRepository = bookingPolicyRepository, companyRepository = companyRepository)
+        val christina = CompanyAdmin(bookingPolicyRepository = bookingPolicyRepository, companyRepository = companyRepository, companyId = exampleCompanyId)
         val edwin = Employee(exampleEmployeeId, bookingService)
         val emilio = Employee(EmployeeId("emilio"), bookingService)
 

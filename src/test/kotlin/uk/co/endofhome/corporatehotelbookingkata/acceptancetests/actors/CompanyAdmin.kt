@@ -10,6 +10,7 @@ import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyServ
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.CompanyService
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
+import uk.co.endofhome.corporatehotelbookingkata.domain.CompanyId
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
@@ -17,9 +18,9 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 class CompanyAdmin(
     private val bookingRepository: InMemoryBookingRepository = InMemoryBookingRepository(),
     private val bookingPolicyRepository: InMemoryBookingPolicyRepository = InMemoryBookingPolicyRepository(),
-    private val companyRepository: InMemoryCompanyRepository = InMemoryCompanyRepository()
+    private val companyRepository: InMemoryCompanyRepository = InMemoryCompanyRepository(),
+    private val companyId: CompanyId = exampleCompanyId
 ) {
-    private val companyId = exampleCompanyId
     private val companyService = CompanyService(companyRepository, bookingRepository, bookingPolicyRepository)
     private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository, companyRepository)
 

@@ -26,10 +26,10 @@ class BookingPolicyService(private val bookingPolicyRepository: BookingPolicyRep
         val employee = companyRepository.find(employeeId)
         val employeePolicies = bookingPolicyRepository.getPoliciesFor(employeeId).filterIsInstance<EmployeePolicy>()
         val companyPolicies = employee?.let { bookingPolicyRepository.getPoliciesFor(employee.companyId).filterIsInstance<CompanyPolicy>() }.orEmpty()
-        val allPolicies = employeePolicies + companyPolicies
+        val relevantPolicies = employeePolicies.ifEmpty { companyPolicies }
         val noBookingPolicies = employeePolicies.isEmpty() && companyPolicies.isEmpty()
 
-        return allPolicies.find { roomType in it.roomTypesAllowed } != null || noBookingPolicies
+        return relevantPolicies.find { roomType in it.roomTypesAllowed } != null || noBookingPolicies
     }
 }
 

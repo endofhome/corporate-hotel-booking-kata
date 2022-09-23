@@ -16,7 +16,7 @@ class BookingPolicyRepositoryContract {
         val bookingPolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
         bookingPolicyRepository.add(bookingPolicy)
 
-        bookingPolicyRepository.getPoliciesFor(exampleEmployeeId) shouldBe setOf(bookingPolicy)
+        bookingPolicyRepository.findPolicyFor(exampleEmployeeId) shouldBe bookingPolicy
     }
 
     @Test

@@ -24,7 +24,8 @@ class BookingPolicyService(private val bookingPolicyRepository: BookingPolicyRep
 
     override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean {
         val employee = companyRepository.find(employeeId)
-        val employeePolicies = bookingPolicyRepository.getPoliciesFor(employeeId).filterIsInstance<EmployeePolicy>()
+        val employeePolicy = bookingPolicyRepository.findPolicyFor(employeeId)
+        val employeePolicies = listOfNotNull(employeePolicy)
         val companyPolicies = employee?.let { bookingPolicyRepository.getPoliciesFor(employee.companyId).filterIsInstance<CompanyPolicy>() }.orEmpty()
         val relevantPolicies = employeePolicies.ifEmpty { companyPolicies }
         val noBookingPolicies = employeePolicies.isEmpty() && companyPolicies.isEmpty()
@@ -35,7 +36,7 @@ class BookingPolicyService(private val bookingPolicyRepository: BookingPolicyRep
 
 interface BookingPolicyRepository {
     fun add(bookingPolicy: BookingPolicy)
-    fun getPoliciesFor(employeeId: EmployeeId): List<BookingPolicy>
+    fun findPolicyFor(employeeId: EmployeeId): EmployeePolicy?
     fun getPoliciesFor(companyId: CompanyId): List<BookingPolicy>
     fun deletePoliciesFor(employeeId: EmployeeId)
 }
@@ -49,8 +50,8 @@ class InMemoryBookingPolicyRepository : BookingPolicyRepository {
         bookingPolicies = bookingPolicies + bookingPolicy
     }
 
-    override fun getPoliciesFor(employeeId: EmployeeId): List<BookingPolicy> =
-        bookingPolicies.filterIsInstance<EmployeePolicy>().filter { it.employeeId == employeeId }
+    override fun findPolicyFor(employeeId: EmployeeId): EmployeePolicy? =
+        bookingPolicies.filterIsInstance<EmployeePolicy>().find { it.employeeId == employeeId }
 
     override fun getPoliciesFor(companyId: CompanyId): List<BookingPolicy> =
         bookingPolicies.filterIsInstance<CompanyPolicy>().filter { it.companyId == companyId }

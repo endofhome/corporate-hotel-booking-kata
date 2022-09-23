@@ -25,12 +25,10 @@ class BookingPolicyService(private val bookingPolicyRepository: BookingPolicyRep
     override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean {
         val employee = companyRepository.find(employeeId)
         val employeePolicy = bookingPolicyRepository.findPolicyFor(employeeId)
-        val employeePolicies = listOfNotNull(employeePolicy)
-        val companyPolicies = employee?.let { listOfNotNull(bookingPolicyRepository.findPolicyFor(employee.companyId)) } ?: emptyList()
-        val relevantPolicies = employeePolicies.ifEmpty { companyPolicies }
-        val noBookingPolicies = employeePolicies.isEmpty() && companyPolicies.isEmpty()
+        val companyPolicy = employee?.let { bookingPolicyRepository.findPolicyFor(employee.companyId) }
+        val policyWithPrecedence = employeePolicy ?: companyPolicy
 
-        return relevantPolicies.find { roomType in it.roomTypesAllowed } != null || noBookingPolicies
+        return policyWithPrecedence?.roomTypesAllowed?.contains(roomType) ?: true
     }
 }
 

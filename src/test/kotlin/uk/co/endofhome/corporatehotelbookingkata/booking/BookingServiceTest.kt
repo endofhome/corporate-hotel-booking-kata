@@ -14,19 +14,14 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
-import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
 import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
+import uk.co.endofhome.corporatehotelbookingkata.hotel.InMemoryHotelRepository
 import java.time.LocalDate
 
 internal class BookingServiceTest {
-    private val hotelService = HotelService(
-        listOf(
-            Hotel(
-                id = exampleHotelId,
-                rooms = mapOf(RoomType.Single to 1)
-            )
-        )
-    )
+    private val hotelService = HotelService(InMemoryHotelRepository()).also {
+        it.setRoomType(exampleHotelId, RoomType.Single, 1)
+    }
     private val companyRepository = InMemoryCompanyRepository()
     private val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository(),companyRepository)
     private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
@@ -99,12 +94,9 @@ internal class BookingServiceTest {
     fun `Bookings cannot be made if a room isn't available for the duration of the booking`() {
         val firstDay = exampleCheckInDate
         val secondDay = exampleCheckOutDate
-        val hotelService = HotelService(listOf(
-            Hotel(
-                id = exampleHotelId,
-                rooms = mapOf(RoomType.Single to 1)
-            )
-        ))
+        val hotelService = HotelService(InMemoryHotelRepository()).also {
+            it.setRoomType(exampleHotelId, RoomType.Single, 1)
+        }
         val bookingRepository = InMemoryBookingRepository()
         val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
 

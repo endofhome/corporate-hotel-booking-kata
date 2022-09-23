@@ -12,7 +12,7 @@ class BookingPolicyRepositoryContract {
     private val bookingPolicyRepository = InMemoryBookingPolicyRepository()
 
     @Test
-    fun `get all booking policies for employee`() {
+    fun `get booking policy for employee`() {
         val bookingPolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
         bookingPolicyRepository.add(bookingPolicy)
 
@@ -20,10 +20,10 @@ class BookingPolicyRepositoryContract {
     }
 
     @Test
-    fun `get all booking policies for company`() {
+    fun `get booking policy for company`() {
         val bookingPolicy = CompanyPolicy(exampleCompanyId, setOf(RoomType.Single))
         bookingPolicyRepository.add(bookingPolicy)
 
-        bookingPolicyRepository.getPoliciesFor(exampleCompanyId) shouldBe setOf(bookingPolicy)
+        bookingPolicyRepository.findPolicyFor(exampleCompanyId) shouldBe bookingPolicy
     }
 }

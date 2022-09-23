@@ -3,7 +3,6 @@ package uk.co.endofhome.corporatehotelbookingkata.company
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import uk.co.endofhome.corporatehotelbookingkata.domain.CompanyId
-import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
@@ -44,15 +43,5 @@ class CompanyRepositoryContract {
         companyRepository.delete(exampleEmployeeId)
 
         companyRepository.allCompanies() shouldBe emptyMap()
-    }
-
-    @Test
-    fun `get all employees for a company`() {
-        val thirdEmployee = EmployeeId("three")
-        companyRepository.add(exampleEmployeeId, exampleCompanyId)
-        companyRepository.add(EmployeeId("another company"), CompanyId("another-company-id"))
-        companyRepository.add(thirdEmployee, exampleCompanyId)
-
-        companyRepository.employees(exampleCompanyId) shouldBe setOf(exampleEmployeeId, thirdEmployee)
     }
 }

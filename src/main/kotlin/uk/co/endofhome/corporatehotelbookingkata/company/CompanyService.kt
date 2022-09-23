@@ -24,7 +24,6 @@ class CompanyService(
 interface CompanyRepository {
     fun add(employeeId: EmployeeId, companyId: CompanyId)
     fun delete(employeeId: EmployeeId)
-    fun employees(companyId: CompanyId): Set<EmployeeId>
     fun find(employeeId: EmployeeId): Employee?
 }
 
@@ -45,9 +44,6 @@ class InMemoryCompanyRepository : CompanyRepository {
         }
         companies = (companies + updatedCompanies).filter { it.value.isNotEmpty() }
     }
-
-    override fun employees(companyId: CompanyId): Set<EmployeeId> =
-        (companies[companyId] ?: emptyList()).toSet()
 
     override fun find(employeeId: EmployeeId): Employee? =
         companies.entries.find { it.value.contains(employeeId) }?.let { Employee(employeeId, it.key) }

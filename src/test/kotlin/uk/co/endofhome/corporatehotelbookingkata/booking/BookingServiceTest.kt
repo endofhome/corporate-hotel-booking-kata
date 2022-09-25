@@ -43,7 +43,7 @@ internal class BookingServiceTest {
             checkOutDate = checkOutDate
         )
 
-        result shouldBe Failure(CheckInMustPreceedCheckOut(checkInDate, checkOutDate))
+        result shouldBe Failure(CheckInMustPrecedeCheckOut(checkInDate, checkOutDate))
     }
 
     @Test

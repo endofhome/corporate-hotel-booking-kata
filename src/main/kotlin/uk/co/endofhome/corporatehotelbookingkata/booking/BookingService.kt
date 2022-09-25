@@ -89,9 +89,9 @@ class BookingService(
             maybeHotel?.asSuccess() ?: HotelDoesNotExist(hotelId).asFailure()
         }
 
-    private fun validateDates(checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Unit, CheckInMustPreceedCheckOut> =
+    private fun validateDates(checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Unit, CheckInMustPrecedeCheckOut> =
         if (checkInDate >= checkOutDate) {
-            CheckInMustPreceedCheckOut(checkInDate, checkOutDate).asFailure()
+            CheckInMustPrecedeCheckOut(checkInDate, checkOutDate).asFailure()
         } else {
             Unit.asSuccess()
         }

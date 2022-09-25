@@ -13,14 +13,16 @@ internal class BookingPolicyServiceTests{
     fun `Employee booking policy takes precedence over company booking policy`() {
         val companyRepository = InMemoryCompanyRepository()
         val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
-        companyRepository.add(exampleEmployeeId, exampleCompanyId)
+        val employeeId = exampleEmployeeId
+        val companyId = exampleCompanyId
+        companyRepository.add(employeeId, companyId)
 
-        bookingPolicyService.setEmployeePolicy(exampleEmployeeId,setOf(RoomType.Single))
-        bookingPolicyService.setCompanyPolicy(exampleCompanyId,setOf(RoomType.Double))
+        bookingPolicyService.setEmployeePolicy(employeeId,setOf(RoomType.Single))
+        bookingPolicyService.setCompanyPolicy(companyId,setOf(RoomType.Double))
 
         assertSoftly {
-            bookingPolicyService.isBookingAllowed(exampleEmployeeId, RoomType.Single) shouldBe true
-            bookingPolicyService.isBookingAllowed(exampleEmployeeId, RoomType.Double) shouldBe false
+            bookingPolicyService.isBookingAllowed(employeeId, RoomType.Single) shouldBe true
+            bookingPolicyService.isBookingAllowed(employeeId, RoomType.Double) shouldBe false
         }
     }
 }

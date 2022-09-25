@@ -14,6 +14,7 @@ internal class BookingPolicyServiceTests{
         val companyRepository = InMemoryCompanyRepository()
         val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
+
         bookingPolicyService.setEmployeePolicy(exampleEmployeeId,setOf(RoomType.Single))
         bookingPolicyService.setCompanyPolicy(exampleCompanyId,setOf(RoomType.Double))
 

@@ -8,7 +8,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
-internal class BookingPolicyServiceTest{
+internal class BookingPolicyServiceTests{
     @Test
     fun `Employee booking policy takes precedence over company booking policy`() {
         val companyRepository = InMemoryCompanyRepository()

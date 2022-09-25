@@ -11,7 +11,7 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 
-internal class BookingRepositoryContract {
+internal class BookingRepositoryContractTests {
     private val bookingRepository: BookingRepository = InMemoryBookingRepository()
 
     @Test

@@ -22,7 +22,7 @@ import uk.co.endofhome.corporatehotelbookingkata.hotel.InMemoryHotelRepository
 import uk.co.endofhome.corporatehotelbookingkata.result.expectSuccess
 import java.time.LocalDate
 
-internal class BookingServiceTest {
+internal class BookingServiceTests {
     private val hotelService = HotelService(InMemoryHotelRepository()).also {
         it.setRoomType(exampleHotelId, RoomType.Single, 1)
     }

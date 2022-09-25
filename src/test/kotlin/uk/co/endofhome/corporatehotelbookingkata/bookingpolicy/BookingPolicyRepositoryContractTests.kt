@@ -8,7 +8,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
-class BookingPolicyRepositoryContract {
+class BookingPolicyRepositoryContractTests {
     private val bookingPolicyRepository = InMemoryBookingPolicyRepository()
 
     @Test

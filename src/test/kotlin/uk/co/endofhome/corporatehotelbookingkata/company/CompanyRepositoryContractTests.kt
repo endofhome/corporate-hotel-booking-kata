@@ -6,7 +6,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.CompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
-class CompanyRepositoryContract {
+class CompanyRepositoryContractTests {
     private val companyRepository = InMemoryCompanyRepository()
 
     @Test

@@ -9,7 +9,7 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
 class BookingPolicyRepositoryContractTests {
-    private val bookingPolicyRepository = InMemoryBookingPolicyRepository()
+    private val bookingPolicyRepository: BookingPolicyRepository = InMemoryBookingPolicyRepository()
 
     @Test
     fun `get booking policy for employee`() {

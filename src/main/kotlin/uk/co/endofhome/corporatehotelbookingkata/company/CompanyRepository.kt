@@ -6,6 +6,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 interface CompanyRepository {
     fun add(employeeId: EmployeeId, companyId: CompanyId)
     fun delete(employeeId: EmployeeId)
+    fun findCompany(companyId: CompanyId): Company?
     fun findEmployee(employeeId: EmployeeId): Employee?
 }
 
@@ -30,7 +31,11 @@ class InMemoryCompanyRepository : CompanyRepository {
     override fun findEmployee(employeeId: EmployeeId): Employee? =
         companies.entries.find { it.value.contains(employeeId) }?.let { Employee(employeeId, it.key) }
 
+    override fun findCompany(companyId: CompanyId): Company? =
+        companies[companyId]?.let { Company(companyId, it) }
+
     fun allCompanies() = companies
 }
 
+data class Company(val companyId: CompanyId, val employeeIds: List<EmployeeId>)
 data class Employee(val employeeId: EmployeeId, val companyId: CompanyId)

@@ -7,17 +7,12 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleCompanyId
 import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
 class CompanyRepositoryContractTests {
-    private val companyRepository = InMemoryCompanyRepository()
-
-    @Test
-    fun `no companies`() {
-        companyRepository.allCompanies() shouldBe emptyMap()
-    }
+    private val companyRepository: CompanyRepository = InMemoryCompanyRepository()
 
     @Test
     fun `can add employee to company`() {
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
-        companyRepository.allCompanies() shouldBe mapOf(exampleCompanyId to listOf(exampleEmployeeId))
+        companyRepository.findCompany(exampleCompanyId) shouldBe Company(exampleCompanyId, listOf(exampleEmployeeId))
     }
 
     @Test
@@ -25,7 +20,7 @@ class CompanyRepositoryContractTests {
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
 
-        companyRepository.allCompanies() shouldBe mapOf(exampleCompanyId to listOf(exampleEmployeeId))
+        companyRepository.findCompany(exampleCompanyId) shouldBe Company(exampleCompanyId, listOf(exampleEmployeeId))
     }
 
     @Test
@@ -33,7 +28,7 @@ class CompanyRepositoryContractTests {
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
         companyRepository.delete(exampleEmployeeId)
 
-        companyRepository.allCompanies() shouldBe emptyMap()
+        companyRepository.findCompany(exampleCompanyId) shouldBe null
     }
 
     @Test
@@ -42,6 +37,6 @@ class CompanyRepositoryContractTests {
         companyRepository.add(exampleEmployeeId, CompanyId("another-company-id"))
         companyRepository.delete(exampleEmployeeId)
 
-        companyRepository.allCompanies() shouldBe emptyMap()
+        companyRepository.findCompany(exampleCompanyId) shouldBe null
     }
 }

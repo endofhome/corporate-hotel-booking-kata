@@ -3,7 +3,7 @@ package uk.co.endofhome.corporatehotelbookingkata.booking
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.flatMap
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
@@ -18,7 +18,7 @@ import java.time.LocalDate
 
 class BookingService(
     private val hotelService: HotelService,
-    private val bookingPolicyService: IBookingPolicyService,
+    private val bookingPolicyService: BookingPolicyService,
     private val bookingRepository: InMemoryBookingRepository
 ) {
     fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result<Booking, BookingError> =

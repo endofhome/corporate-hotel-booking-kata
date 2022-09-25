@@ -8,7 +8,7 @@ import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.HotelMan
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.EmployeePolicy
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.DefaultBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
@@ -24,7 +24,7 @@ class AcceptanceTests {
     }
     private val companyRepository = InMemoryCompanyRepository()
     private val bookingPolicyRepository = InMemoryBookingPolicyRepository()
-    private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository, companyRepository)
+    private val bookingPolicyService = DefaultBookingPolicyService(bookingPolicyRepository, companyRepository)
     private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
@@ -42,7 +42,7 @@ class AcceptanceTests {
         val hotelService = HotelService(InMemoryHotelRepository()).also {
             it.setRoomType(exampleHotelId, Single, 1)
         }
-        val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
+        val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
         val edwin = Employee(exampleEmployeeId, bookingService)
         val eileen = Employee(EmployeeId("eileen-id"), bookingService)

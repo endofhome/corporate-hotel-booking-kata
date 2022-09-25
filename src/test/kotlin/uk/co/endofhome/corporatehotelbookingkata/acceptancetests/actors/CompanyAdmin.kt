@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldNotBe
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.CompanyPolicy
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicy.EmployeePolicy
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.DefaultBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.CompanyService
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
@@ -22,7 +22,7 @@ class CompanyAdmin(
     private val companyId: CompanyId = exampleCompanyId
 ) {
     private val companyService = CompanyService(companyRepository, bookingRepository, bookingPolicyRepository)
-    private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository, companyRepository)
+    private val bookingPolicyService = DefaultBookingPolicyService(bookingPolicyRepository, companyRepository)
 
     fun canAddEmployee(employeeId: EmployeeId) {
         companyService.addEmployee(companyId, employeeId)

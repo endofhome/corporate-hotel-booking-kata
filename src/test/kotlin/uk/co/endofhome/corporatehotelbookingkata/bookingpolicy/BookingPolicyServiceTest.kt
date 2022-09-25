@@ -12,7 +12,7 @@ internal class BookingPolicyServiceTest{
     @Test
     fun `Employee booking policy takes precedence over company booking policy`() {
         val companyRepository = InMemoryCompanyRepository()
-        val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
+        val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository)
         companyRepository.add(exampleEmployeeId, exampleCompanyId)
         bookingPolicyService.setEmployeePolicy(exampleEmployeeId,setOf(RoomType.Single))
         bookingPolicyService.setCompanyPolicy(exampleCompanyId,setOf(RoomType.Double))

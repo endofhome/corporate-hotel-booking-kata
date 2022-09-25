@@ -5,7 +5,7 @@ import dev.forkhandles.result4k.Success
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Test
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyService
-import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
+import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.DefaultBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
 import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
@@ -27,7 +27,7 @@ internal class BookingServiceTest {
         it.setRoomType(exampleHotelId, RoomType.Single, 1)
     }
     private val companyRepository = InMemoryCompanyRepository()
-    private val bookingPolicyService = BookingPolicyService(InMemoryBookingPolicyRepository(),companyRepository)
+    private val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(),companyRepository)
     private val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
     @Test
@@ -78,7 +78,7 @@ internal class BookingServiceTest {
 
     @Test
     fun `Bookings cannot be made if they are against the booking policy`() {
-        val bookingNotAllowedBookingPolicyService = object : IBookingPolicyService by BookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository) {
+        val bookingNotAllowedBookingPolicyService = object : BookingPolicyService by DefaultBookingPolicyService(InMemoryBookingPolicyRepository(), companyRepository) {
             override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean = false
         }
         val bookingService = BookingService(hotelService, bookingNotAllowedBookingPolicyService, InMemoryBookingRepository())

@@ -7,13 +7,13 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.CompanyId
 import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 
-interface IBookingPolicyService {
+interface BookingPolicyService {
     fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>)
     fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>)
     fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean
 }
 
-class BookingPolicyService(private val bookingPolicyRepository: BookingPolicyRepository, private val companyRepository: CompanyRepository) : IBookingPolicyService {
+class DefaultBookingPolicyService(private val bookingPolicyRepository: BookingPolicyRepository, private val companyRepository: CompanyRepository) : BookingPolicyService {
     override fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>) {
         bookingPolicyRepository.add(CompanyPolicy(companyId, roomTypes))
     }

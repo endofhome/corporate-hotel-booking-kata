@@ -10,10 +10,12 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 
 class BookingPolicyRepositoryContractTests {
     private val bookingPolicyRepository: BookingPolicyRepository = InMemoryBookingPolicyRepository()
+    private val employeeId = exampleEmployeeId
+    private val companyId = exampleCompanyId
 
     @Test
     fun `get booking policy for employee`() {
-        val bookingPolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
+        val bookingPolicy = EmployeePolicy(employeeId, setOf(RoomType.Single))
 
         bookingPolicyRepository.add(bookingPolicy)
 
@@ -22,7 +24,7 @@ class BookingPolicyRepositoryContractTests {
 
     @Test
     fun `get booking policy for company`() {
-        val bookingPolicy = CompanyPolicy(exampleCompanyId, setOf(RoomType.Single))
+        val bookingPolicy = CompanyPolicy(companyId, setOf(RoomType.Single))
 
         bookingPolicyRepository.add(bookingPolicy)
 
@@ -31,7 +33,7 @@ class BookingPolicyRepositoryContractTests {
 
     @Test
     fun `delete booking policies for employee`() {
-        val employeePolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
+        val employeePolicy = EmployeePolicy(employeeId, setOf(RoomType.Single))
         bookingPolicyRepository.add(employeePolicy)
 
         bookingPolicyRepository.deletePoliciesFor(employeePolicy.employeeId)

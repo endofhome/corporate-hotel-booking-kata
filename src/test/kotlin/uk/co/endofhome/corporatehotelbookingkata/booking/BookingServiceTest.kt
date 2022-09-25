@@ -176,11 +176,9 @@ internal class BookingServiceTest {
 
     @Test
     fun `A change in quantity of rooms should not affect existing bookings`() {
-        val hotelService = HotelService(InMemoryHotelRepository()).also {
-            it.setRoomType(exampleHotelId, RoomType.Single, 1)
-        }
         val bookingRepository = InMemoryBookingRepository()
         val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
+        hotelService.setRoomType(exampleHotelId, RoomType.Single, 1)
 
         val booking = bookingService.book(
             employeeId = exampleEmployeeId,
@@ -192,7 +190,7 @@ internal class BookingServiceTest {
 
         hotelService.setRoomType(exampleHotelId, RoomType.Single, 0)
 
-        val existingBookings = bookingRepository.allBookings().filter { it.hotelId == exampleHotelId }
+        val existingBookings = bookingRepository.getBookingsFor(exampleHotelId, RoomType.Single, exampleCheckInDate)
 
         existingBookings.single() shouldBe booking
     }

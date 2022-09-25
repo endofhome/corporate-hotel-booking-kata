@@ -38,10 +38,10 @@ class BookingService(
             }
 
     private fun validateDates(checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<Unit, CheckInMustPrecedeCheckOut> =
-        if (checkInDate >= checkOutDate) {
-            CheckInMustPrecedeCheckOut(checkInDate, checkOutDate).asFailure()
-        } else {
+        if (checkInDate < checkOutDate) {
             Unit.asSuccess()
+        } else {
+            CheckInMustPrecedeCheckOut(checkInDate, checkOutDate).asFailure()
         }
 
     private fun validateAllowedByBookingPolicy(employeeId: EmployeeId, roomType: RoomType): Result4k<Unit, BookingError> =
@@ -83,10 +83,10 @@ class BookingService(
         roomType: RoomType,
         roomAvailability: List<RoomAvailability>,
     ): Result4k<Unit, BookingError> {
-        return if (roomAvailability.all { it.availability == null }) {
-            RoomTypeDoesNotExist(hotelId, roomType).asFailure()
-        } else {
+        return if (roomAvailability.all { it.availability != null }) {
             Unit.asSuccess()
+        } else {
+            RoomTypeDoesNotExist(hotelId, roomType).asFailure()
         }
     }
 
@@ -95,10 +95,10 @@ class BookingService(
             .filter { (_, availableRooms) -> availableRooms == null || availableRooms <= 0 }
             .toList()
 
-        return if (unavailableDates.isNotEmpty()) {
-            RoomTypeUnavailable(hotelId, roomType, unavailableDates.map { it.date }).asFailure()
-        } else {
+        return if (unavailableDates.isEmpty()) {
             Unit.asSuccess()
+        } else {
+            RoomTypeUnavailable(hotelId, roomType, unavailableDates.map { it.date }).asFailure()
         }
     }
 }

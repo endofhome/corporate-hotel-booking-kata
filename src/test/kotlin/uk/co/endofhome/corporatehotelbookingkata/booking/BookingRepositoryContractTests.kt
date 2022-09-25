@@ -17,7 +17,9 @@ internal class BookingRepositoryContractTests {
     @Test
     fun `add a booking`() {
         val booking = Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate)
+
         bookingRepository.add(booking)
+
         bookingRepository.getBookingsFor(booking.hotelId, booking.roomType, booking.from) shouldBe listOf(booking)
     }
 

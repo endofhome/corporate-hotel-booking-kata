@@ -20,14 +20,14 @@ import java.time.LocalDate
 class BookingService(
     private val hotelService: HotelService,
     private val bookingPolicyService: BookingPolicyService,
-    private val bookingRepository: InMemoryBookingRepository
+    private val bookingRepository: BookingRepository
 ) {
     fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result<Booking, BookingError> =
         validateDates(checkInDate, checkOutDate)
             .flatMap { validateAllowedByBookingPolicy(employeeId, roomType) }
             .flatMap { findHotel(hotelId) }
             .flatMap { hotel ->
-                val roomAvailabilityOnBookingDates = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate, bookingRepository)
+                val roomAvailabilityOnBookingDates = getRoomAvailability(hotel, roomType, checkInDate, checkOutDate)
                 validateRoomTypeExists(hotelId, roomType, roomAvailabilityOnBookingDates)
                     .flatMap { validateRoomIsAvailable(hotelId, roomType, roomAvailabilityOnBookingDates) }
             }
@@ -61,19 +61,14 @@ class BookingService(
         roomType: RoomType,
         checkInDate: LocalDate,
         checkOutDate: LocalDate,
-        bookingRepository: InMemoryBookingRepository
     ): List<RoomAvailabilityOnDate> {
         val allBookingDates: Sequence<LocalDate> =
             generateSequence(checkInDate) { it.plusDays(1) }.takeWhile { it < checkOutDate }
 
         return allBookingDates.map { date ->
             val numberOfRoomTypeInHotel = hotel.rooms[roomType]
-            val bookingsForThisRoom = bookingRepository.allBookings()
-                .filter { it.hotelId == hotel.id }
-                .filter { it.roomType == roomType }
-                .filter { (it.from..it.to.minusDays(1)).contains(date) }
+            val bookingsForThisRoom = bookingRepository.getBookingsFor(hotel.id, roomType, date)
                 .fold(0) { acc, _ -> acc + 1 }
-
             RoomAvailabilityOnDate(date, numberOfRoomTypeInHotel?.minus(bookingsForThisRoom))
         }.toList()
     }

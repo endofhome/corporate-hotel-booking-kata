@@ -13,10 +13,14 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 
 internal class BookingRepositoryContractTests {
     private val bookingRepository: BookingRepository = InMemoryBookingRepository()
+    private val employeeId = exampleEmployeeId
+    private val hotelId = exampleHotelId
+    private val checkInDate = exampleCheckInDate
+    private val checkOutDate = exampleCheckOutDate
 
     @Test
     fun `add a booking`() {
-        val booking = Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate)
+        val booking = Booking(employeeId, hotelId, RoomType.Single, checkInDate, checkOutDate)
 
         bookingRepository.add(booking)
 
@@ -25,14 +29,14 @@ internal class BookingRepositoryContractTests {
 
     @Test
     fun `delete all bookings for employee`() {
-        val firstBooking = Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate)
+        val firstBooking = Booking(employeeId, hotelId, RoomType.Single, checkInDate, checkOutDate)
         val secondBooking = firstBooking.copy(employeeId = EmployeeId("another-employee-id"))
         val thirdBooking = firstBooking.copy(hotelId = HotelId("another-hotel-id"))
         bookingRepository.add(firstBooking)
         bookingRepository.add(secondBooking)
         bookingRepository.add(thirdBooking)
 
-        bookingRepository.deleteBookingsFor(exampleEmployeeId)
+        bookingRepository.deleteBookingsFor(employeeId)
 
         bookingRepository.getBookingsFor(firstBooking.hotelId, firstBooking.roomType, firstBooking.from) shouldBe listOf(secondBooking)
     }

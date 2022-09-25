@@ -9,7 +9,7 @@ class HotelService(private val hotelRepository: HotelRepository) {
     }
 
     fun findHotelBy(hotelId: HotelId): Hotel? {
-        return hotelRepository.find { it.id == hotelId }
+        return hotelRepository.findHotel { it.id == hotelId }
     }
 }
 

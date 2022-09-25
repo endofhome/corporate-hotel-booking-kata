@@ -5,7 +5,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 
 interface HotelRepository {
     fun setRoomType(hotelId: HotelId, roomType: RoomType, quantity: Int)
-    fun find(predicate: (Hotel) -> Boolean): Hotel?
+    fun findHotel(predicate: (Hotel) -> Boolean): Hotel?
 }
 
 class InMemoryHotelRepository : HotelRepository {
@@ -19,5 +19,5 @@ class InMemoryHotelRepository : HotelRepository {
         hotels = (foundHotel?.let { hotels - it } ?: hotels) + updatedHotel
     }
 
-    override fun find(predicate: (Hotel) -> Boolean) = hotels.find(predicate)
+    override fun findHotel(predicate: (Hotel) -> Boolean) = hotels.find(predicate)
 }

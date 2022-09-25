@@ -3,7 +3,7 @@ package uk.co.endofhome.corporatehotelbookingkata.hotel
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
 import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 
-class HotelService(private val hotelRepository: InMemoryHotelRepository) {
+class HotelService(private val hotelRepository: HotelRepository) {
     fun setRoomType(hotelId: HotelId, roomType: RoomType, quantity: Int) {
         hotelRepository.setRoomType(hotelId, roomType, quantity)
     }

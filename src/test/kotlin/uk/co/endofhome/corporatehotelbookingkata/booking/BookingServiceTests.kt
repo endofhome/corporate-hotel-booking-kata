@@ -23,8 +23,14 @@ import uk.co.endofhome.corporatehotelbookingkata.result.expectSuccess
 import java.time.LocalDate
 
 internal class BookingServiceTests {
+    private val employeeId = exampleEmployeeId
+    private val hotelId = exampleHotelId
+    private val roomType = RoomType.Single
+    private val checkInDate = exampleCheckInDate
+    private val checkOutDate = exampleCheckOutDate
+
     private val hotelService = HotelService(InMemoryHotelRepository()).also {
-        it.setRoomType(exampleHotelId, RoomType.Single, 1)
+        it.setRoomType(hotelId, RoomType.Single, 1)
     }
     private val companyRepository = InMemoryCompanyRepository()
     private val bookingPolicyService = DefaultBookingPolicyService(InMemoryBookingPolicyRepository(),companyRepository)
@@ -63,17 +69,19 @@ internal class BookingServiceTests {
 
     @Test
     fun `Bookings cannot be made for room types unavailable at the chosen hotel`() {
-        val roomType = RoomType.Double
+        val hotelService = HotelService(InMemoryHotelRepository())
+        hotelService.setRoomType(hotelId, RoomType.Single, 1)
+        val doubleRoom = RoomType.Double
 
         val result = bookingService.book(
             employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Double,
+            hotelId = hotelId,
+            roomType = doubleRoom,
             checkInDate = exampleCheckInDate,
             checkOutDate = exampleCheckOutDate
         )
 
-        result shouldBe Failure(RoomTypeDoesNotExist(exampleHotelId, roomType))
+        result shouldBe Failure(RoomTypeDoesNotExist(hotelId, doubleRoom))
     }
 
     @Test
@@ -98,34 +106,34 @@ internal class BookingServiceTests {
     fun `Bookings cannot be made if a room isn't available for the duration of the booking`() {
         val firstDay = exampleCheckInDate
         val secondDay = exampleCheckOutDate
-        val hotelService = HotelService(InMemoryHotelRepository()).also {
-            it.setRoomType(exampleHotelId, RoomType.Single, 1)
-        }
+
+        val hotelService = HotelService(InMemoryHotelRepository())
         val bookingRepository = InMemoryBookingRepository()
         val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
 
+        hotelService.setRoomType(hotelId, roomType, 1)
         bookingRepository.add(
             Booking(
-                employeeId = exampleEmployeeId,
-                hotelId = exampleHotelId,
-                roomType = RoomType.Single,
+                employeeId = employeeId,
+                hotelId = hotelId,
+                roomType = roomType,
                 from = secondDay,
                 to = secondDay.plusDays(1)
             )
         )
 
         val result = bookingService.book(
-            employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
+            employeeId = employeeId,
+            hotelId = hotelId,
+            roomType = roomType,
             checkInDate = firstDay,
             checkOutDate = firstDay.plusDays(2)
         )
 
         result shouldBe Failure(
             RoomTypeUnavailable(
-                hotelId = exampleHotelId,
-                roomType = RoomType.Single,
+                hotelId = hotelId,
+                roomType = roomType,
                 onDates = listOf(firstDay.plusDays(1))
             ))
     }
@@ -135,28 +143,32 @@ internal class BookingServiceTests {
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
         val firstResult = bookingService.book(
-            employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            checkInDate = exampleCheckInDate,
-            checkOutDate = exampleCheckOutDate
+            employeeId = employeeId,
+            hotelId = hotelId,
+            roomType = roomType,
+            checkInDate = checkInDate,
+            checkOutDate = checkOutDate
         )
 
         val secondResult = bookingService.book(
-            employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            checkInDate = exampleCheckInDate,
-            checkOutDate = exampleCheckOutDate
+            employeeId = employeeId,
+            hotelId = hotelId,
+            roomType = roomType,
+            checkInDate = checkInDate,
+            checkOutDate = checkOutDate
         )
 
-        firstResult shouldBe Success(Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate))
+        firstResult shouldBe Success(
+            Booking(employeeId, hotelId, roomType, checkInDate, checkOutDate)
+        )
 
-        secondResult shouldBe Failure(RoomTypeUnavailable(
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            onDates = listOf(exampleCheckInDate)
-        ))
+        secondResult shouldBe Failure(
+            RoomTypeUnavailable(
+                hotelId = hotelId,
+                roomType = roomType,
+                onDates = listOf(checkInDate)
+            )
+        )
     }
 
     @Test
@@ -164,35 +176,34 @@ internal class BookingServiceTests {
         val bookingService = BookingService(hotelService, bookingPolicyService, InMemoryBookingRepository())
 
         val result = bookingService.book(
-            employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            checkInDate = exampleCheckInDate,
-            checkOutDate = exampleCheckOutDate
+            employeeId = employeeId,
+            hotelId = hotelId,
+            roomType = roomType,
+            checkInDate = checkInDate,
+            checkOutDate = checkOutDate
         )
 
-        result shouldBe Success(Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate))
+        result shouldBe Success(Booking(employeeId, hotelId, roomType, checkInDate, checkOutDate))
     }
 
     @Test
     fun `A change in quantity of rooms should not affect existing bookings`() {
         val bookingRepository = InMemoryBookingRepository()
         val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
-        hotelService.setRoomType(exampleHotelId, RoomType.Single, 1)
+        hotelService.setRoomType(hotelId, roomType, 1)
 
         val booking = bookingService.book(
             employeeId = exampleEmployeeId,
-            hotelId = exampleHotelId,
-            roomType = RoomType.Single,
-            checkInDate = exampleCheckInDate,
-            checkOutDate = exampleCheckOutDate
+            hotelId = hotelId,
+            roomType = roomType,
+            checkInDate = checkInDate,
+            checkOutDate = checkOutDate
         ).expectSuccess()
 
-        hotelService.setRoomType(exampleHotelId, RoomType.Single, 0)
+        hotelService.setRoomType(hotelId, roomType, 0)
 
-        val existingBookings = bookingRepository.getBookingsFor(exampleHotelId, RoomType.Single, exampleCheckInDate)
+        val existingBookings = bookingRepository.getBookingsFor(hotelId, roomType, checkInDate)
 
         existingBookings.single() shouldBe booking
     }
-
 }

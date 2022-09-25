@@ -12,19 +12,13 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 
 internal class BookingRepositoryContract {
-    private val bookingRepository = InMemoryBookingRepository()
-
-    @Test
-    fun `retrieves no bookings`() {
-        bookingRepository.allBookings() shouldBe emptyList()
-    }
+    private val bookingRepository: BookingRepository = InMemoryBookingRepository()
 
     @Test
     fun `add a booking`() {
-        val booking =
-            Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate)
+        val booking = Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate)
         bookingRepository.add(booking)
-        bookingRepository.allBookings() shouldBe listOf(booking)
+        bookingRepository.getBookingsFor(booking.hotelId, booking.roomType, booking.from) shouldBe listOf(booking)
     }
 
     @Test
@@ -38,6 +32,6 @@ internal class BookingRepositoryContract {
 
         bookingRepository.deleteBookingsFor(exampleEmployeeId)
 
-        bookingRepository.allBookings() shouldBe listOf(secondBooking)
+        bookingRepository.getBookingsFor(firstBooking.hotelId, firstBooking.roomType, firstBooking.from) shouldBe listOf(secondBooking)
     }
 }

@@ -28,6 +28,6 @@ class InMemoryBookingPolicyRepository : BookingPolicyRepository {
         bookingPolicies.filterIsInstance<CompanyPolicy>().find { it.companyId == companyId }
 
     override fun deletePoliciesFor(employeeId: EmployeeId) {
-        bookingPolicies = bookingPolicies.filterNot { it is EmployeePolicy && it.employeeId == employeeId}
+        bookingPolicies = bookingPolicies.filterNot { it is EmployeePolicy && it.employeeId == employeeId }
     }
 }

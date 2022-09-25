@@ -14,16 +14,28 @@ class BookingPolicyRepositoryContractTests {
     @Test
     fun `get booking policy for employee`() {
         val bookingPolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
+
         bookingPolicyRepository.add(bookingPolicy)
 
-        bookingPolicyRepository.findPolicyFor(exampleEmployeeId) shouldBe bookingPolicy
+        bookingPolicyRepository.findPolicyFor(bookingPolicy.employeeId) shouldBe bookingPolicy
     }
 
     @Test
     fun `get booking policy for company`() {
         val bookingPolicy = CompanyPolicy(exampleCompanyId, setOf(RoomType.Single))
+
         bookingPolicyRepository.add(bookingPolicy)
 
-        bookingPolicyRepository.findPolicyFor(exampleCompanyId) shouldBe bookingPolicy
+        bookingPolicyRepository.findPolicyFor(bookingPolicy.companyId) shouldBe bookingPolicy
+    }
+
+    @Test
+    fun `delete booking policies for employee`() {
+        val employeePolicy = EmployeePolicy(exampleEmployeeId, setOf(RoomType.Single))
+        bookingPolicyRepository.add(employeePolicy)
+
+        bookingPolicyRepository.deletePoliciesFor(employeePolicy.employeeId)
+
+        bookingPolicyRepository.findPolicyFor(employeePolicy.employeeId) shouldBe null
     }
 }

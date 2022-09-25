@@ -8,7 +8,10 @@ import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.BookingPolicyServ
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.InMemoryBookingPolicyRepository
 import uk.co.endofhome.corporatehotelbookingkata.company.InMemoryCompanyRepository
-import uk.co.endofhome.corporatehotelbookingkata.domain.*
+import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
+import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
+import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckInDate
 import uk.co.endofhome.corporatehotelbookingkata.exampleCheckOutDate
@@ -16,6 +19,7 @@ import uk.co.endofhome.corporatehotelbookingkata.exampleEmployeeId
 import uk.co.endofhome.corporatehotelbookingkata.exampleHotelId
 import uk.co.endofhome.corporatehotelbookingkata.hotel.HotelService
 import uk.co.endofhome.corporatehotelbookingkata.hotel.InMemoryHotelRepository
+import uk.co.endofhome.corporatehotelbookingkata.result.expectSuccess
 import java.time.LocalDate
 
 internal class BookingServiceTest {
@@ -146,7 +150,7 @@ internal class BookingServiceTest {
             checkOutDate = exampleCheckOutDate
         )
 
-        firstResult shouldBe Success(BookingConfirmation)
+        firstResult shouldBe Success(Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate))
 
         secondResult shouldBe Failure(RoomTypeUnavailable(
             hotelId = exampleHotelId,
@@ -167,6 +171,30 @@ internal class BookingServiceTest {
             checkOutDate = exampleCheckOutDate
         )
 
-        result shouldBe Success(BookingConfirmation)
+        result shouldBe Success(Booking(exampleEmployeeId, exampleHotelId, RoomType.Single, exampleCheckInDate, exampleCheckOutDate))
     }
+
+    @Test
+    fun `A change in quantity of rooms should not affect existing bookings`() {
+        val hotelService = HotelService(InMemoryHotelRepository()).also {
+            it.setRoomType(exampleHotelId, RoomType.Single, 1)
+        }
+        val bookingRepository = InMemoryBookingRepository()
+        val bookingService = BookingService(hotelService, bookingPolicyService, bookingRepository)
+
+        val booking = bookingService.book(
+            employeeId = exampleEmployeeId,
+            hotelId = exampleHotelId,
+            roomType = RoomType.Single,
+            checkInDate = exampleCheckInDate,
+            checkOutDate = exampleCheckOutDate
+        ).expectSuccess()
+
+        hotelService.setRoomType(exampleHotelId, RoomType.Single, 0)
+
+        val existingBookings = bookingRepository.allBookings().filter { it.hotelId == exampleHotelId }
+
+        existingBookings.single() shouldBe booking
+    }
+
 }

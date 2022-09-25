@@ -1,9 +1,13 @@
 package uk.co.endofhome.corporatehotelbookingkata.booking
 
+import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.Result4k
 import dev.forkhandles.result4k.flatMap
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.IBookingPolicyService
-import uk.co.endofhome.corporatehotelbookingkata.domain.*
+import uk.co.endofhome.corporatehotelbookingkata.domain.Booking
+import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
+import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
+import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError.*
 import uk.co.endofhome.corporatehotelbookingkata.hotel.Hotel
@@ -17,7 +21,7 @@ class BookingService(
     private val bookingPolicyService: IBookingPolicyService,
     private val bookingRepository: InMemoryBookingRepository
 ) {
-    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result4k<BookingConfirmation, BookingError> =
+    fun book(employeeId: EmployeeId, hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate): Result<Booking, BookingError> =
         validateDates(checkInDate, checkOutDate)
             .flatMap { findHotel(hotelId) }
             .flatMap { hotel ->
@@ -29,7 +33,7 @@ class BookingService(
     private fun add(booking: Booking) =
         if (bookingPolicyService.isBookingAllowed(booking.employeeId, booking.roomType)) {
             bookingRepository.add(booking)
-            BookingConfirmation.asSuccess()
+            booking.asSuccess()
         } else {
             BookingIsAgainstPolicy.asFailure()
         }

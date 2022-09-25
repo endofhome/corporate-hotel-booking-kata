@@ -17,5 +17,3 @@ enum class RoomType {
     Single,
     Double
 }
-
-object BookingConfirmation

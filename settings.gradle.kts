@@ -1,3 +1,3 @@
 
-rootProject.name = "corporate-hotel-booking-calendar"
+rootProject.name = "corporate-hotel-booking-kata"
 

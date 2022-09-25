@@ -55,7 +55,7 @@ class AcceptanceTests {
     fun `Company admin can add employees`() {
         val christina = CompanyAdmin()
 
-        christina.addEmployee(exampleEmployeeId)
+        christina.canAddEmployee(exampleEmployeeId)
     }
 
     @Test
@@ -65,11 +65,11 @@ class AcceptanceTests {
         val christina = CompanyAdmin(bookingRepository = bookingRepository, bookingPolicyRepository = bookingPolicyRepository)
         val edwin = Employee(exampleEmployeeId, bookingService)
 
-        christina.addEmployee(edwin.employeeId)
+        christina.canAddEmployee(edwin.employeeId)
         edwin.canBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate)
         bookingPolicyRepository.add(EmployeePolicy(edwin.employeeId, setOf(RoomType.Double)))
 
-        christina.deleteEmployee(exampleEmployeeId)
+        christina.canDeleteEmployee(exampleEmployeeId)
     }
 
     @Test
@@ -77,7 +77,7 @@ class AcceptanceTests {
         val christina = CompanyAdmin(bookingPolicyRepository = bookingPolicyRepository)
 
         val edwin = Employee(exampleEmployeeId, bookingService)
-        christina.setEmployeePolicy(edwin.employeeId, setOf(RoomType.Double))
+        christina.canSetEmployeePolicy(edwin.employeeId, setOf(RoomType.Double))
 
         edwin.cannotBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate, because = BookingIsAgainstPolicy)
     }
@@ -88,9 +88,9 @@ class AcceptanceTests {
         val edwin = Employee(exampleEmployeeId, bookingService)
         val emilio = Employee(EmployeeId("emilio"), bookingService)
 
-        christina.addEmployee(edwin.employeeId)
-        christina.addEmployee(emilio.employeeId)
-        christina.setCompanyPolicy(setOf(RoomType.Double))
+        christina.canAddEmployee(edwin.employeeId)
+        christina.canAddEmployee(emilio.employeeId)
+        christina.canSetCompanyPolicy(setOf(RoomType.Double))
 
         edwin.cannotBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate, because = BookingIsAgainstPolicy)
         emilio.cannotBook(exampleHotelId, Single, exampleCheckInDate, exampleCheckOutDate, because = BookingIsAgainstPolicy)

@@ -24,13 +24,13 @@ class CompanyAdmin(
     private val companyService = CompanyService(companyRepository, bookingRepository, bookingPolicyRepository)
     private val bookingPolicyService = BookingPolicyService(bookingPolicyRepository, companyRepository)
 
-    fun addEmployee(employeeId: EmployeeId) {
+    fun canAddEmployee(employeeId: EmployeeId) {
         companyService.addEmployee(companyId, employeeId)
 
         employeeId shouldBeIn(companyRepository.allCompanies()[companyId]!!)
     }
 
-    fun deleteEmployee(employeeId: EmployeeId) {
+    fun canDeleteEmployee(employeeId: EmployeeId) {
         companyService.deleteEmployee(employeeId)
 
         companyRepository.allCompanies().values.shouldNotContain(employeeId)
@@ -39,7 +39,7 @@ class CompanyAdmin(
             .shouldNotContain(employeeId)
     }
 
-    fun setEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
+    fun canSetEmployeePolicy(employeeId: EmployeeId, roomTypes: Set<RoomType>) {
         bookingPolicyService.setEmployeePolicy(employeeId, roomTypes)
 
         bookingPolicyRepository.allBookingPolicies().find {
@@ -47,7 +47,7 @@ class CompanyAdmin(
         } shouldNotBe null
     }
 
-    fun setCompanyPolicy(roomTypes: Set<RoomType>) {
+    fun canSetCompanyPolicy(roomTypes: Set<RoomType>) {
         bookingPolicyService.setCompanyPolicy(companyId, roomTypes)
 
         bookingPolicyRepository.allBookingPolicies().find {

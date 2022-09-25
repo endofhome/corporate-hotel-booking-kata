@@ -6,7 +6,7 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.EmployeeId
 interface CompanyRepository {
     fun add(employeeId: EmployeeId, companyId: CompanyId)
     fun delete(employeeId: EmployeeId)
-    fun find(employeeId: EmployeeId): Employee?
+    fun findEmployee(employeeId: EmployeeId): Employee?
 }
 
 class InMemoryCompanyRepository : CompanyRepository {
@@ -27,7 +27,7 @@ class InMemoryCompanyRepository : CompanyRepository {
         companies = (companies + updatedCompanies).filter { it.value.isNotEmpty() }
     }
 
-    override fun find(employeeId: EmployeeId): Employee? =
+    override fun findEmployee(employeeId: EmployeeId): Employee? =
         companies.entries.find { it.value.contains(employeeId) }?.let { Employee(employeeId, it.key) }
 
     fun allCompanies() = companies

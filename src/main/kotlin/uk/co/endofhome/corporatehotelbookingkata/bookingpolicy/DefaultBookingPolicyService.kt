@@ -23,7 +23,7 @@ class DefaultBookingPolicyService(private val bookingPolicyRepository: BookingPo
     }
 
     override fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean {
-        val employee = companyRepository.find(employeeId)
+        val employee = companyRepository.findEmployee(employeeId)
         val employeePolicy = bookingPolicyRepository.findPolicyFor(employeeId)
         val companyPolicy = employee?.let { bookingPolicyRepository.findPolicyFor(employee.companyId) }
         val policyWithPrecedence = employeePolicy ?: companyPolicy

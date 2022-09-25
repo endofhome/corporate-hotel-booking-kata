@@ -11,8 +11,10 @@ import uk.co.endofhome.corporatehotelbookingkata.domain.RoomType
 import uk.co.endofhome.corporatehotelbookingkata.domain.errors.BookingError
 import java.time.LocalDate
 
-class Employee(val employeeId: EmployeeId, private val bookingService: BookingService) {
-
+class Employee(
+    val employeeId: EmployeeId,
+    private val bookingService: BookingService
+) {
     fun canBook(hotelId: HotelId, roomType: RoomType, checkInDate: LocalDate, checkOutDate: LocalDate) {
         val result = bookingService.book(employeeId, hotelId, roomType, checkInDate, checkOutDate)
 

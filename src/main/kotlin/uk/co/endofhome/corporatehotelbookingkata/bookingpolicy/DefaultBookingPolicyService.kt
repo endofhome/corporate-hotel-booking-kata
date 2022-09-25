@@ -13,7 +13,10 @@ interface BookingPolicyService {
     fun isBookingAllowed(employeeId: EmployeeId, roomType: RoomType): Boolean
 }
 
-class DefaultBookingPolicyService(private val bookingPolicyRepository: BookingPolicyRepository, private val companyRepository: CompanyRepository) : BookingPolicyService {
+class DefaultBookingPolicyService(
+    private val bookingPolicyRepository: BookingPolicyRepository,
+    private val companyRepository: CompanyRepository
+) : BookingPolicyService {
     override fun setCompanyPolicy(companyId: CompanyId, roomTypes: Set<RoomType>) {
         bookingPolicyRepository.add(CompanyPolicy(companyId, roomTypes))
     }

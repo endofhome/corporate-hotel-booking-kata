@@ -1,10 +1,10 @@
-package uk.co.endofhome.corporatehotelbookingkata.acceptancetests
+package uk.co.endofhome.corporatehotelbookingkata.acceptance
 
 import org.junit.jupiter.api.Test
 import uk.co.endofhome.corporatehotelbookingkata.*
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.CompanyAdmin
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.Employee
-import uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors.HotelManager
+import uk.co.endofhome.corporatehotelbookingkata.acceptance.actors.CompanyAdmin
+import uk.co.endofhome.corporatehotelbookingkata.acceptance.actors.Employee
+import uk.co.endofhome.corporatehotelbookingkata.acceptance.actors.HotelManager
 import uk.co.endofhome.corporatehotelbookingkata.booking.BookingService
 import uk.co.endofhome.corporatehotelbookingkata.booking.InMemoryBookingRepository
 import uk.co.endofhome.corporatehotelbookingkata.bookingpolicy.DefaultBookingPolicyService

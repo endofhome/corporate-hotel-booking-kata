@@ -1,4 +1,4 @@
-package uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors
+package uk.co.endofhome.corporatehotelbookingkata.acceptance.actors
 
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success

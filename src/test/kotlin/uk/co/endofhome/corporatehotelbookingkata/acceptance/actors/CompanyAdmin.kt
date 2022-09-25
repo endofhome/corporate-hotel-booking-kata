@@ -1,4 +1,4 @@
-package uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors
+package uk.co.endofhome.corporatehotelbookingkata.acceptance.actors
 
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.collections.shouldNotContain

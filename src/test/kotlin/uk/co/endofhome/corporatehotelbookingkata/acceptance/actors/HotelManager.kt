@@ -1,4 +1,4 @@
-package uk.co.endofhome.corporatehotelbookingkata.acceptancetests.actors
+package uk.co.endofhome.corporatehotelbookingkata.acceptance.actors
 
 import io.kotest.matchers.shouldBe
 import uk.co.endofhome.corporatehotelbookingkata.domain.HotelId
